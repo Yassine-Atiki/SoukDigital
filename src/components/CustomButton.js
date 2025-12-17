@@ -2,126 +2,215 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
 import { COLORS, SPACING, SHADOWS, BORDER_RADIUS, FONTS } from '../constants/theme';
 
-const CustomButton = ({ title, onPress, type = 'primary', isLoading = false }) => {
-    const isPrimary = type === 'primary';
+/**
+ * Premium CustomButton Component
+ * Moroccan-inspired button with elegant decorative elements
+ */
+const CustomButton = ({ 
+  title, 
+  onPress, 
+  type = 'primary', 
+  size = 'large',
+  isLoading = false,
+  disabled = false,
+  icon = null,
+}) => {
+  const isPrimary = type === 'primary';
+  const isOutline = type === 'outline';
+  const isGhost = type === 'ghost';
 
-    return (
-        <TouchableOpacity
+  const getSizeStyles = () => {
+    switch (size) {
+      case 'small':
+        return {
+          paddingVertical: SPACING.s + 2,
+          paddingHorizontal: SPACING.m,
+        };
+      case 'medium':
+        return {
+          paddingVertical: SPACING.m,
+          paddingHorizontal: SPACING.l,
+        };
+      case 'large':
+      default:
+        return {
+          paddingVertical: SPACING.m + 4,
+          paddingHorizontal: SPACING.xl,
+        };
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.container,
+        getSizeStyles(),
+        isPrimary && styles.primaryContainer,
+        isOutline && styles.outlineContainer,
+        isGhost && styles.ghostContainer,
+        (isLoading || disabled) && styles.disabled,
+      ]}
+      onPress={onPress}
+      disabled={isLoading || disabled}
+      activeOpacity={0.8}
+    >
+      {/* Premium gold corner accents - inspired by traditional Moroccan frames */}
+      {isPrimary && (
+        <>
+          {/* Top decorative line */}
+          <View style={styles.topGoldLine} />
+          {/* Corner accents */}
+          <View style={[styles.cornerAccent, styles.cornerTopLeft]} />
+          <View style={[styles.cornerAccent, styles.cornerTopRight]} />
+          <View style={[styles.cornerAccent, styles.cornerBottomLeft]} />
+          <View style={[styles.cornerAccent, styles.cornerBottomRight]} />
+        </>
+      )}
+      
+      {isLoading ? (
+        <ActivityIndicator 
+          color={isPrimary ? COLORS.textInverse : COLORS.primary} 
+          size="small" 
+        />
+      ) : (
+        <View style={styles.contentWrapper}>
+          {icon && <View style={styles.iconWrapper}>{icon}</View>}
+          <Text 
             style={[
-                styles.container,
-                isPrimary ? styles.primaryContainer : styles.secondaryContainer,
-                isLoading && styles.disabled,
+              styles.text, 
+              isPrimary && styles.primaryText,
+              isOutline && styles.outlineText,
+              isGhost && styles.ghostText,
+              size === 'small' && styles.smallText,
             ]}
-            onPress={onPress}
-            disabled={isLoading}
-            activeOpacity={0.85}
-        >
-            {/* Effet de bordure décorative marocaine */}
-            {isPrimary && (
-                <>
-                    <View style={styles.decorativeCornerTopLeft} />
-                    <View style={styles.decorativeCornerTopRight} />
-                    <View style={styles.decorativeCornerBottomLeft} />
-                    <View style={styles.decorativeCornerBottomRight} />
-                </>
-            )}
-            
-            {isLoading ? (
-                <ActivityIndicator color={isPrimary ? COLORS.textInverse : COLORS.primary} size="small" />
-            ) : (
-                <Text style={[styles.text, isPrimary ? styles.primaryText : styles.secondaryText]}>
-                    {title}
-                </Text>
-            )}
-        </TouchableOpacity>
-    );
+          >
+            {title}
+          </Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        borderRadius: BORDER_RADIUS.md,
-        paddingVertical: SPACING.m + 2,
-        paddingHorizontal: SPACING.xl,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginVertical: SPACING.s,
-        position: 'relative',
-        overflow: 'hidden',
-    },
-    primaryContainer: {
-        backgroundColor: COLORS.primary,
-        ...SHADOWS.colored,
-        // Bordure subtile dorée
-        borderWidth: 1.5,
-        borderColor: COLORS.goldLight,
-    },
-    secondaryContainer: {
-        backgroundColor: 'transparent',
-        borderWidth: 2,
-        borderColor: COLORS.primary,
-        elevation: 0,
-        shadowOpacity: 0,
-    },
-    text: {
-        fontSize: FONTS.sizes.md,
-        fontWeight: '700',
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-    },
-    primaryText: {
-        color: COLORS.textInverse,
-    },
-    secondaryText: {
-        color: COLORS.primary,
-    },
-    disabled: {
-        opacity: 0.6,
-    },
-    // Coins décoratifs inspirés des motifs marocains
-    decorativeCornerTopLeft: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: 8,
-        height: 8,
-        borderTopWidth: 2,
-        borderLeftWidth: 2,
-        borderColor: COLORS.gold,
-        opacity: 0.6,
-    },
-    decorativeCornerTopRight: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        width: 8,
-        height: 8,
-        borderTopWidth: 2,
-        borderRightWidth: 2,
-        borderColor: COLORS.gold,
-        opacity: 0.6,
-    },
-    decorativeCornerBottomLeft: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        width: 8,
-        height: 8,
-        borderBottomWidth: 2,
-        borderLeftWidth: 2,
-        borderColor: COLORS.gold,
-        opacity: 0.6,
-    },
-    decorativeCornerBottomRight: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        width: 8,
-        height: 8,
-        borderBottomWidth: 2,
-        borderRightWidth: 2,
-        borderColor: COLORS.gold,
-        opacity: 0.6,
-    },
+  container: {
+    borderRadius: BORDER_RADIUS.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+    minHeight: 56,
+  },
+  
+  // Primary Button - Rich terracotta with gold accents
+  primaryContainer: {
+    backgroundColor: COLORS.primary,
+    ...SHADOWS.primary,
+    borderWidth: 1,
+    borderColor: 'rgba(201, 162, 39, 0.3)',
+  },
+  
+  // Outline Button
+  outlineContainer: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  
+  // Ghost Button
+  ghostContainer: {
+    backgroundColor: 'transparent',
+  },
+
+  // Top decorative gold line
+  topGoldLine: {
+    position: 'absolute',
+    top: 0,
+    left: '15%',
+    right: '15%',
+    height: 2,
+    backgroundColor: COLORS.gold,
+    opacity: 0.5,
+    borderRadius: 1,
+  },
+
+  // Corner accent decorations
+  cornerAccent: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    opacity: 0.6,
+  },
+  cornerTopLeft: {
+    top: -1,
+    left: -1,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: COLORS.gold,
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+  },
+  cornerTopRight: {
+    top: -1,
+    right: -1,
+    borderTopWidth: 2,
+    borderRightWidth: 2,
+    borderColor: COLORS.gold,
+    borderTopRightRadius: BORDER_RADIUS.lg,
+  },
+  cornerBottomLeft: {
+    bottom: -1,
+    left: -1,
+    borderBottomWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: COLORS.gold,
+    borderBottomLeftRadius: BORDER_RADIUS.lg,
+  },
+  cornerBottomRight: {
+    bottom: -1,
+    right: -1,
+    borderBottomWidth: 2,
+    borderRightWidth: 2,
+    borderColor: COLORS.gold,
+    borderBottomRightRadius: BORDER_RADIUS.lg,
+  },
+
+  contentWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  iconWrapper: {
+    marginRight: SPACING.s,
+  },
+
+  text: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: '700',
+    letterSpacing: FONTS.letterSpacing.wider,
+    textTransform: 'uppercase',
+  },
+  
+  smallText: {
+    fontSize: FONTS.sizes.sm,
+    letterSpacing: FONTS.letterSpacing.wide,
+  },
+  
+  primaryText: {
+    color: COLORS.textInverse,
+  },
+  
+  outlineText: {
+    color: COLORS.primary,
+  },
+  
+  ghostText: {
+    color: COLORS.primary,
+  },
+  
+  disabled: {
+    opacity: 0.5,
+  },
 });
 
 export default CustomButton;
