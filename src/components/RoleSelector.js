@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     },
     activeButton: {
         backgroundColor: COLORS.primary,
-        ...SHADOWS.subtle,
+        ...SHADOWS.sm,
     },
     roleText: {
         marginLeft: SPACING.s,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
@@ -12,14 +12,35 @@ import {
     ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
-import { PRODUCTS } from '../data/mockData';
+import { useProducts } from '../context/ProductsContext';
+import { useAuth } from '../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
 const ArtisanDashboardScreen = ({ navigation }) => {
-    // Mock data for artisan's own products
-    const myProducts = PRODUCTS.slice(0, 3); // Just taking first 3 as mock
+    const { getProductsByArtisan, products } = useProducts();
+    const { user } = useAuth();
+    const [myProducts, setMyProducts] = useState([]);
+
+    // Function to load products
+    const loadMyProducts = useCallback(() => {
+        const artisanProducts = getProductsByArtisan(user?.id || 'artisan_1');
+        setMyProducts(artisanProducts.slice(0, 3)); // Show only first 3 in dashboard
+    }, [getProductsByArtisan, user]);
+
+    // Load products when screen comes into focus
+    useFocusEffect(
+        useCallback(() => {
+            loadMyProducts();
+        }, [loadMyProducts])
+    );
+
+    // Also load when products context changes
+    useEffect(() => {
+        loadMyProducts();
+    }, [products, loadMyProducts]);
 
     const renderProductItem = ({ item }) => (
         <View style={styles.productCard}>
@@ -30,15 +51,18 @@ const ArtisanDashboardScreen = ({ navigation }) => {
                 <View style={styles.statsRow}>
                     <View style={styles.stat}>
                         <Ionicons name="eye-outline" size={14} color={COLORS.textTertiary} />
-                        <Text style={styles.statText}>1.2k</Text>
+                        <Text style={styles.statText}>{item.views || 0}</Text>
                     </View>
                     <View style={styles.stat}>
                         <Ionicons name="heart-outline" size={14} color={COLORS.textTertiary} />
-                        <Text style={styles.statText}>45</Text>
+                        <Text style={styles.statText}>{item.likes || 0}</Text>
                     </View>
                 </View>
             </View>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity 
+                style={styles.editButton}
+                onPress={() => navigation.navigate('AddEditProduct', { productId: item.id })}
+            >
                 <Ionicons name="create-outline" size={20} color={COLORS.surface} />
             </TouchableOpacity>
         </View>
@@ -81,24 +105,30 @@ const ArtisanDashboardScreen = ({ navigation }) => {
 
                 {/* Quick Actions */}
                 <View style={styles.actionsContainer}>
-                    <TouchableOpacity style={styles.actionButton}>
+                    <TouchableOpacity 
+                        style={styles.actionButton}
+                        onPress={() => navigation.navigate('AddEditProduct')}
+                    >
                         <View style={[styles.actionIcon, { backgroundColor: COLORS.primaryLight }]}>
                             <Ionicons name="add" size={24} color={COLORS.primary} />
                         </View>
                         <Text style={styles.actionText}>Ajouter un produit</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
+                    <TouchableOpacity 
+                        style={styles.actionButton}
+                        onPress={() => navigation.navigate('ManageProducts')}
+                    >
                         <View style={[styles.actionIcon, { backgroundColor: COLORS.secondaryLight }]}>
-                            <Ionicons name="stats-chart" size={24} color={COLORS.secondary} />
+                            <Ionicons name="grid-outline" size={24} color={COLORS.secondary} />
                         </View>
-                        <Text style={styles.actionText}>Statistiques</Text>
+                        <Text style={styles.actionText}>Gérer mes produits</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* My Products */}
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>Mes Créations</Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('ManageProducts')}>
                         <Text style={styles.seeAllText}>Voir tout</Text>
                     </TouchableOpacity>
                 </View>

@@ -1,24 +1,68 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 const ProfileScreen = ({ navigation }) => {
-    // Mock user data - in a real app this would come from context/auth
-    const user = {
-        name: 'Yassine Atiki',
-        email: 'yassine@example.com',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80',
+    const { user, logout } = useAuth();
+    const { clearCart } = useCart();
+
+    if (!user) return null;
+
+    const handleLogout = () => {
+        Alert.alert(
+            'Déconnexion',
+            'Êtes-vous sûr de vouloir vous déconnecter?',
+            [
+                { text: 'Annuler', style: 'cancel' },
+                {
+                    text: 'Se déconnecter',
+                    style: 'destructive',
+                    onPress: () => {
+                        clearCart();
+                        logout();
+                        navigation.replace('Auth');
+                    }
+                }
+            ]
+        );
     };
 
     const menuItems = [
-        { icon: 'person-outline', label: 'Mon Profil' },
-        { icon: 'location-outline', label: 'Mes Adresses' },
-        { icon: 'card-outline', label: 'Moyens de Paiement' },
-        { icon: 'heart-outline', label: 'Favoris' },
-        { icon: 'settings-outline', label: 'Paramètres' },
-        { icon: 'help-circle-outline', label: 'Aide & Support' },
+        { icon: 'person-outline', label: 'Mon Profil', action: 'profile' },
+        { icon: 'location-outline', label: 'Mes Adresses', action: 'addresses' },
+        { icon: 'card-outline', label: 'Moyens de Paiement', action: 'payment' },
+        { icon: 'heart-outline', label: 'Favoris', action: 'favorites' },
+        { icon: 'settings-outline', label: 'Paramètres', action: 'settings' },
+        { icon: 'help-circle-outline', label: 'Aide & Support', action: 'support' },
     ];
+
+    const handleMenuPress = (action) => {
+        switch (action) {
+            case 'profile':
+                navigation.navigate('EditProfile');
+                break;
+            case 'addresses':
+                navigation.navigate('Addresses');
+                break;
+            case 'payment':
+                navigation.navigate('PaymentMethods');
+                break;
+            case 'favorites':
+                navigation.navigate('Favorites');
+                break;
+            case 'settings':
+                navigation.navigate('Settings');
+                break;
+            case 'support':
+                Alert.alert('Aide & Support', 'Contactez-nous à support@soukdigital.ma');
+                break;
+            default:
+                break;
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -35,7 +79,11 @@ const ProfileScreen = ({ navigation }) => {
                         <Text style={styles.userName}>{user.name}</Text>
                         <Text style={styles.userEmail}>{user.email}</Text>
                     </View>
-                    <TouchableOpacity style={styles.editButton}>
+                    <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={() => navigation.navigate('EditProfile')}
+                        activeOpacity={0.7}
+                    >
                         <Ionicons name="pencil" size={20} color={COLORS.primary} />
                     </TouchableOpacity>
                 </View>
@@ -43,7 +91,12 @@ const ProfileScreen = ({ navigation }) => {
                 {/* Menu Items */}
                 <View style={styles.menuContainer}>
                     {menuItems.map((item, index) => (
-                        <TouchableOpacity key={index} style={styles.menuItem}>
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.menuItem}
+                            onPress={() => handleMenuPress(item.action)}
+                            activeOpacity={0.7}
+                        >
                             <View style={styles.menuIconContainer}>
                                 <Ionicons name={item.icon} size={22} color={COLORS.primary} />
                             </View>
@@ -56,7 +109,7 @@ const ProfileScreen = ({ navigation }) => {
                 {/* Logout Button */}
                 <TouchableOpacity
                     style={styles.logoutButton}
-                    onPress={() => navigation.replace('Auth')}
+                    onPress={handleLogout}
                 >
                     <Ionicons name="log-out-outline" size={20} color={COLORS.error} />
                     <Text style={styles.logoutText}>Se Déconnecter</Text>

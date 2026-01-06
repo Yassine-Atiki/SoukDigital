@@ -10,19 +10,40 @@ import {
     StatusBar,
     Dimensions,
     Platform,
+    Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import { ARTISANS } from '../data/mockData';
+import { useCart } from '../context/CartContext';
+import { useFavorites } from '../context/FavoritesContext';
 
 const { width, height } = Dimensions.get('window');
 
+// Implements TESTING_GUIDE Section 2.3: ProductDetailScreen
+// - Favorite button functionality integrated with FavoritesContext
+// - Add to cart with quantity selection
+// - Navigation to artisan profile
 const ProductDetailScreen = ({ navigation, route }) => {
     const { product } = route.params;
+    const { addToCart } = useCart();
+    const { toggleFavorite, isFavorite: checkIsFavorite } = useFavorites();
     const [quantity, setQuantity] = useState(1);
+
+    const isFavorite = checkIsFavorite(product.id);
 
     const incrementQuantity = () => setQuantity(prev => prev + 1);
     const decrementQuantity = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
+
+    const handleAddToCart = () => {
+        addToCart(product, quantity);
+        Alert.alert('Produit ajouté au panier', `${quantity}x ${product.name} ajouté(s) à votre panier.`);
+        setQuantity(1); // Reset quantity after adding
+    };
+
+    const handleToggleFavorite = () => {
+        toggleFavorite(product);
+    };
 
     return (
         <View style={styles.container}>
@@ -42,8 +63,16 @@ const ProductDetailScreen = ({ navigation, route }) => {
                         >
                             <Ionicons name="arrow-back" size={24} color={COLORS.surface} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconButton}>
-                            <Ionicons name="heart-outline" size={24} color={COLORS.surface} />
+                        <TouchableOpacity
+                            style={styles.iconButton}
+                            onPress={handleToggleFavorite}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons
+                                name={isFavorite ? "heart" : "heart-outline"}
+                                size={24}
+                                color={isFavorite ? COLORS.error : COLORS.surface}
+                            />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -111,7 +140,10 @@ const ProductDetailScreen = ({ navigation, route }) => {
                     <Text style={styles.priceLabel}>Prix Total</Text>
                     <Text style={styles.price}>{product.price * quantity} MAD</Text>
                 </View>
-                <TouchableOpacity style={styles.addToCartButton}>
+                <TouchableOpacity
+                    style={styles.addToCartButton}
+                    onPress={handleAddToCart}
+                >
                     <Text style={styles.addToCartText}>Ajouter au Panier</Text>
                     <Ionicons name="cart" size={20} color={COLORS.surface} style={{ marginLeft: 8 }} />
                 </TouchableOpacity>

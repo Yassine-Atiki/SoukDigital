@@ -1,18 +1,20 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { Platform } from 'react-native';
+import { Platform, View, Text, StyleSheet } from 'react-native';
 
 import HomeScreen from '../screens/HomeScreen';
 import CartScreen from '../screens/CartScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ArtisanDashboardScreen from '../screens/ArtisanDashboardScreen';
 import { COLORS, SHADOWS, FONTS } from '../constants/theme';
+import { useCart } from '../context/CartContext';
 
 const Tab = createBottomTabNavigator();
 
 const MainContainer = ({ route }) => {
     const { userType } = route.params || { userType: 'customer' };
+    const { itemCount } = useCart();
 
     return (
         <Tab.Navigator
@@ -31,7 +33,7 @@ const MainContainer = ({ route }) => {
                     ...SHADOWS.medium,
                 },
                 tabBarLabelStyle: {
-                    fontFamily: FONTS.medium,
+                    fontWeight: FONTS.weights.medium,
                     fontSize: 12,
                 },
                 tabBarIcon: ({ focused, color, size }) => {
@@ -55,6 +57,18 @@ const MainContainer = ({ route }) => {
                         }
                     }
 
+                    // Show badge for cart icon
+                    if (route.name === 'Cart' && itemCount > 0) {
+                        return (
+                            <View>
+                                <Ionicons name={iconName} size={size} color={color} />
+                                <View style={styles.cartBadge}>
+                                    <Text style={styles.cartBadgeText}>{itemCount > 9 ? '9+' : itemCount}</Text>
+                                </View>
+                            </View>
+                        );
+                    }
+
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
             })}
@@ -75,5 +89,25 @@ const MainContainer = ({ route }) => {
         </Tab.Navigator>
     );
 };
+
+const styles = StyleSheet.create({
+    cartBadge: {
+        position: 'absolute',
+        top: -4,
+        right: -8,
+        backgroundColor: COLORS.error,
+        borderRadius: 10,
+        minWidth: 18,
+        height: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 4,
+    },
+    cartBadgeText: {
+        color: COLORS.surface,
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
+});
 
 export default MainContainer;

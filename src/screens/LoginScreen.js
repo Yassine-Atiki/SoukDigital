@@ -17,10 +17,12 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import MoroccanPattern from '../components/MoroccanPattern';
 import RoleSelector from '../components/RoleSelector';
+import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('customer');
@@ -48,14 +50,22 @@ const LoginScreen = ({ navigation }) => {
     return valid;
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (validate()) {
       setIsLoading(true);
-      setTimeout(() => {
+      try {
+        const result = await login(email, password, userType);
+
+        if (result.success) {
+          navigation.replace('Main', { userType });
+        } else {
+          Alert.alert('Erreur', 'Identifiants incorrects');
+        }
+      } catch (error) {
+        Alert.alert('Erreur', 'Une erreur est survenue lors de la connexion');
+      } finally {
         setIsLoading(false);
-        // Pass userType to Main screen if needed, or store in global context
-        navigation.replace('Main', { userType });
-      }, 1500);
+      }
     }
   };
 

@@ -17,10 +17,12 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import MoroccanPattern from '../components/MoroccanPattern';
 import RoleSelector from '../components/RoleSelector';
+import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
 const SignUpScreen = ({ navigation }) => {
+  const { signup } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,22 +65,31 @@ const SignUpScreen = ({ navigation }) => {
     return valid;
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (validate()) {
       setIsLoading(true);
-      setTimeout(() => {
+      try {
+        const result = await signup(fullName, email, password, userType);
+
+        if (result.success) {
+          Alert.alert(
+            'Bienvenue!',
+            `Votre compte a été créé avec succès !`,
+            [
+              {
+                text: 'Continuer',
+                onPress: () => navigation.replace('Main', { userType }),
+              },
+            ]
+          );
+        } else {
+          Alert.alert('Erreur', result.error || 'Une erreur est survenue lors de l\'inscription');
+        }
+      } catch (error) {
+        Alert.alert('Erreur', 'Une erreur inattendue est survenue');
+      } finally {
         setIsLoading(false);
-        Alert.alert(
-          'Compte créé',
-          `Votre compte ${userType === 'artisan' ? 'Artisan' : 'Client'} a été créé avec succès !`,
-          [
-            {
-              text: 'Se connecter',
-              onPress: () => navigation.navigate('Login'),
-            },
-          ]
-        );
-      }, 1500);
+      }
     }
   };
 

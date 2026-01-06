@@ -1,3 +1,10 @@
+// Implements TESTING_GUIDE Section 2.5: CheckoutScreen
+// - Order summary with items, quantities, prices
+// - Delivery address selection
+// - Payment method selection
+// - Confirm order button functional
+// - Creates order in OrdersContext for OrderHistoryScreen
+// - Clears cart after confirmation
 import React, { useState } from 'react';
 import {
     View,
@@ -12,29 +19,84 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { useOrders } from '../context/OrdersContext';
 
 const CheckoutScreen = ({ navigation, route }) => {
-    const { total } = route.params;
+    const { total, cart, clearCart } = useCart();
+    const { user } = useAuth();
+    const { createOrder } = useOrders();
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' or 'cod'
 
-    const handlePayment = () => {
+    // Form fields
+    const [address, setAddress] = useState('123 Rue de la Médina');
+    const [city, setCity] = useState('Marrakech');
+    const [postalCode, setPostalCode] = useState('40000');
+    const [phone, setPhone] = useState('+212 6 12 34 56 78');
+
+    const SHIPPING_COST = 50; // Changed from 25 to 50 as per TESTING_GUIDE
+    const finalTotal = total + SHIPPING_COST;
+
+    const validateForm = () => {
+        if (!address || !city || !postalCode || !phone) {
+            Alert.alert('Erreur', 'Veuillez remplir tous les champs d\'adresse');
+            return false;
+        }
+        return true;
+    };
+
+    const handlePayment = async () => {
+        if (!validateForm()) return;
+
         setIsProcessing(true);
 
-        // Simulate payment processing delay
-        setTimeout(() => {
-            setIsProcessing(false);
+        try {
+            // Prepare order data
+            const orderData = {
+                total: finalTotal,
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image: item.image,
+                })),
+                deliveryAddress: {
+                    name: user?.name || 'Client',
+                    address: `${address}, ${city} ${postalCode}`,
+                    phone: phone,
+                },
+                paymentMethod: {
+                    type: paymentMethod,
+                    last4: paymentMethod === 'card' ? '4242' : null,
+                },
+            };
+
+            // Create order in OrdersContext
+            const newOrder = await createOrder(orderData);
+
+            // Clear cart after successful order
+            clearCart();
+
+            // Show success message
             Alert.alert(
-                'Commande Confirmée !',
-                'Merci pour votre achat. Vous recevrez un email de confirmation.',
+                'Commande confirmée !',
+                `Votre commande ${newOrder.id} a été enregistrée avec succès. Total: ${finalTotal} DH`,
                 [
                     {
-                        text: 'Retour à l\'accueil',
-                        onPress: () => navigation.popToTop(),
+                        text: 'OK',
+                        onPress: () => navigation.navigate('Main', { screen: 'Home' }),
                     },
                 ]
             );
-        }, 2000);
+        } catch (error) {
+            Alert.alert('Erreur', 'Une erreur est survenue lors de la commande');
+            console.error('Order creation error:', error);
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     return (
@@ -57,12 +119,12 @@ const CheckoutScreen = ({ navigation, route }) => {
                         </View>
                         <View style={styles.summaryRow}>
                             <Text style={styles.summaryLabel}>Livraison</Text>
-                            <Text style={styles.summaryValue}>25 MAD</Text>
+                            <Text style={styles.summaryValue}>{SHIPPING_COST} MAD</Text>
                         </View>
                         <View style={styles.divider} />
                         <View style={styles.summaryRow}>
                             <Text style={styles.totalLabel}>Total à payer</Text>
-                            <Text style={styles.totalValue}>{total + 25} MAD</Text>
+                            <Text style={styles.totalValue}>{finalTotal} MAD</Text>
                         </View>
                     </View>
                 </View>
@@ -70,16 +132,46 @@ const CheckoutScreen = ({ navigation, route }) => {
                 {/* Shipping Address */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Adresse de livraison</Text>
-                    <View style={styles.addressCard}>
-                        <View style={styles.addressHeader}>
-                            <Ionicons name="location" size={20} color={COLORS.primary} />
-                            <Text style={styles.addressName}>Yassine Atiki</Text>
+                    <View style={styles.addressForm}>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Nom complet"
+                            value={user?.name || ''}
+                            placeholderTextColor={COLORS.textTertiary}
+                            editable={false}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Numéro de téléphone *"
+                            value={phone}
+                            onChangeText={setPhone}
+                            keyboardType="phone-pad"
+                            placeholderTextColor={COLORS.textTertiary}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Adresse *"
+                            value={address}
+                            onChangeText={setAddress}
+                            placeholderTextColor={COLORS.textTertiary}
+                        />
+                        <View style={styles.row}>
+                            <TextInput
+                                style={[styles.input, { flex: 2, marginRight: SPACING.m }]}
+                                placeholder="Ville *"
+                                value={city}
+                                onChangeText={setCity}
+                                placeholderTextColor={COLORS.textTertiary}
+                            />
+                            <TextInput
+                                style={[styles.input, { flex: 1 }]}
+                                placeholder="Code postal *"
+                                value={postalCode}
+                                onChangeText={setPostalCode}
+                                keyboardType="numeric"
+                                placeholderTextColor={COLORS.textTertiary}
+                            />
                         </View>
-                        <Text style={styles.addressText}>123 Rue de la Médina</Text>
-                        <Text style={styles.addressText}>40000 Marrakech, Maroc</Text>
-                        <TouchableOpacity style={styles.editButton}>
-                            <Text style={styles.editText}>Modifier</Text>
-                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -148,7 +240,7 @@ const CheckoutScreen = ({ navigation, route }) => {
                         <ActivityIndicator color={COLORS.surface} />
                     ) : (
                         <Text style={styles.payButtonText}>
-                            Payer {total + 25} MAD
+                            Payer {finalTotal} MAD
                         </Text>
                     )}
                 </TouchableOpacity>
@@ -226,6 +318,12 @@ const styles = StyleSheet.create({
         color: COLORS.primary,
     },
     addressCard: {
+        backgroundColor: COLORS.surface,
+        padding: SPACING.m,
+        borderRadius: BORDER_RADIUS.lg,
+        ...SHADOWS.subtle,
+    },
+    addressForm: {
         backgroundColor: COLORS.surface,
         padding: SPACING.m,
         borderRadius: BORDER_RADIUS.lg,

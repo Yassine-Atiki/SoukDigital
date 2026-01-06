@@ -1,4 +1,9 @@
-import React, { useState } from 'react';
+// Implements TESTING_GUIDE Section 2.2: HomeScreen
+// - Categories with filtering
+// - Search navigation to SearchScreen
+// - Product grid with favorites functionality
+// - Badge notification
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -10,21 +15,37 @@ import {
     TextInput,
     StatusBar,
     Dimensions,
+    ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import { CATEGORIES, PRODUCTS } from '../data/mockData';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFavorites } from '../context/FavoritesContext';
+
+import DataService from '../services/DataService';
 
 const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = (width - SPACING.l * 2 - SPACING.m) / 2;
 
 const HomeScreen = ({ navigation }) => {
     const insets = useSafeAreaInsets();
+    const { toggleFavorite, isFavorite } = useFavorites();
     const [selectedCategory, setSelectedCategory] = useState('Tout');
     const [searchQuery, setSearchQuery] = useState('');
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const filteredProducts = PRODUCTS.filter(product => {
+    useEffect(() => {
+        const loadProducts = async () => {
+            const data = await DataService.getProducts();
+            setProducts(data);
+            setIsLoading(false);
+        };
+        loadProducts();
+    }, []);
+
+    const filteredProducts = products.filter(product => {
         const matchesCategory = selectedCategory === 'Tout' || product.category === selectedCategory;
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
@@ -57,30 +78,45 @@ const HomeScreen = ({ navigation }) => {
         );
     };
 
-    const renderProductItem = ({ item }) => (
-        <TouchableOpacity
-            style={styles.productCard}
-            onPress={() => navigation.navigate('ProductDetail', { product: item })}
-        >
-            <View style={styles.imageContainer}>
-                <Image source={{ uri: item.image }} style={styles.productImage} />
-                <TouchableOpacity style={styles.favoriteButton}>
-                    <Ionicons name="heart-outline" size={20} color={COLORS.primary} />
-                </TouchableOpacity>
-            </View>
-            <View style={styles.productInfo}>
-                <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
-                <Text style={styles.artisanName}>{item.artisan}</Text>
-                <View style={styles.priceRow}>
-                    <Text style={styles.productPrice}>{item.price} MAD</Text>
-                    <View style={styles.ratingContainer}>
-                        <Ionicons name="star" size={12} color={COLORS.gold} />
-                        <Text style={styles.ratingText}>{item.rating}</Text>
+    const renderProductItem = ({ item }) => {
+        const itemIsFavorite = isFavorite(item.id);
+        
+        return (
+            <TouchableOpacity
+                style={styles.productCard}
+                onPress={() => navigation.navigate('ProductDetail', { product: item })}
+            >
+                <View style={styles.imageContainer}>
+                    <Image source={{ uri: item.image }} style={styles.productImage} />
+                    <TouchableOpacity 
+                        style={styles.favoriteButton}
+                        onPress={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(item);
+                        }}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons 
+                            name={itemIsFavorite ? "heart" : "heart-outline"} 
+                            size={20} 
+                            color={itemIsFavorite ? COLORS.error : COLORS.primary} 
+                        />
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.productInfo}>
+                    <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
+                    <Text style={styles.artisanName}>{item.artisan}</Text>
+                    <View style={styles.priceRow}>
+                        <Text style={styles.productPrice}>{item.price} MAD</Text>
+                        <View style={styles.ratingContainer}>
+                            <Ionicons name="star" size={12} color={COLORS.gold} />
+                            <Text style={styles.ratingText}>{item.rating}</Text>
+                        </View>
                     </View>
                 </View>
-            </View>
-        </TouchableOpacity>
-    );
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -99,19 +135,17 @@ const HomeScreen = ({ navigation }) => {
             </View>
 
             {/* Search Bar */}
-            <View style={styles.searchContainer}>
+            <TouchableOpacity
+                style={styles.searchContainer}
+                onPress={() => navigation.navigate('Search')}
+                activeOpacity={0.7}
+            >
                 <Ionicons name="search" size={20} color={COLORS.textTertiary} style={styles.searchIcon} />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Rechercher un produit..."
-                    placeholderTextColor={COLORS.textTertiary}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                />
-                <TouchableOpacity style={styles.filterButton}>
+                <Text style={styles.searchPlaceholder}>Rechercher un produit...</Text>
+                <View style={styles.filterButton}>
                     <Ionicons name="options-outline" size={20} color={COLORS.surface} />
-                </TouchableOpacity>
-            </View>
+                </View>
+            </TouchableOpacity>
 
             {/* Categories */}
             <View style={styles.categoriesContainer}>
@@ -126,20 +160,26 @@ const HomeScreen = ({ navigation }) => {
             </View>
 
             {/* Products Grid */}
-            <FlatList
-                data={filteredProducts}
-                renderItem={renderProductItem}
-                keyExtractor={item => item.id.toString()}
-                numColumns={2}
-                columnWrapperStyle={styles.productRow}
-                contentContainerStyle={styles.productsList}
-                showsVerticalScrollIndicator={false}
-                ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>Aucun produit trouvé</Text>
-                    </View>
-                }
-            />
+            {isLoading ? (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color={COLORS.primary} />
+                </View>
+            ) : (
+                <FlatList
+                    data={filteredProducts}
+                    renderItem={renderProductItem}
+                    keyExtractor={item => item.id.toString()}
+                    numColumns={2}
+                    columnWrapperStyle={styles.productRow}
+                    contentContainerStyle={styles.productsList}
+                    showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>Aucun produit trouvé</Text>
+                        </View>
+                    }
+                />
+            )}
         </View>
     );
 };
@@ -159,13 +199,12 @@ const styles = StyleSheet.create({
     greeting: {
         fontSize: FONTS.sizes.sm,
         color: COLORS.textSecondary,
-        fontFamily: FONTS.regular,
+        fontWeight: FONTS.weights.regular,
     },
     title: {
         fontSize: FONTS.sizes.xl,
         color: COLORS.primary,
-        fontWeight: 'bold',
-        fontFamily: FONTS.bold,
+        fontWeight: FONTS.weights.bold,
     },
     notificationButton: {
         padding: SPACING.s,
@@ -189,22 +228,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: SPACING.l,
         marginBottom: SPACING.l,
-    },
-    searchIcon: {
-        position: 'absolute',
-        left: SPACING.l + SPACING.m,
-        zIndex: 1,
-    },
-    searchInput: {
-        flex: 1,
         backgroundColor: COLORS.surface,
         height: 50,
         borderRadius: BORDER_RADIUS.lg,
-        paddingLeft: SPACING.xl * 1.5,
-        paddingRight: SPACING.m,
-        fontSize: FONTS.sizes.md,
-        color: COLORS.text,
+        marginHorizontal: SPACING.l,
         ...SHADOWS.subtle,
+    },
+    searchIcon: {
+        marginLeft: SPACING.m,
+    },
+    searchPlaceholder: {
+        flex: 1,
+        fontSize: FONTS.sizes.md,
+        color: COLORS.textTertiary,
+        marginLeft: SPACING.m,
     },
     filterButton: {
         width: 50,
@@ -213,7 +250,7 @@ const styles = StyleSheet.create({
         borderRadius: BORDER_RADIUS.lg,
         justifyContent: 'center',
         alignItems: 'center',
-        marginLeft: SPACING.m,
+        marginRight: SPACING.m,
         ...SHADOWS.primary,
     },
     categoriesContainer: {

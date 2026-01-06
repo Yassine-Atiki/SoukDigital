@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
     View,
     Text,
@@ -12,51 +12,21 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
-import { PRODUCTS } from '../data/mockData';
+import { useCart } from '../context/CartContext';
 
 const CartScreen = ({ navigation }) => {
-    // Mock cart data - initially empty or with some items
-    const [cartItems, setCartItems] = useState([]);
-    const [total, setTotal] = useState(0);
+    const { cartItems, total, updateQuantity, removeFromCart } = useCart();
 
-    useEffect(() => {
-        // Simulate adding items for demo purposes if empty
-        if (cartItems.length === 0) {
-            const mockCart = [
-                { ...PRODUCTS[0], quantity: 1 },
-                { ...PRODUCTS[1], quantity: 2 },
-            ];
-            setCartItems(mockCart);
-        }
-    }, []);
-
-    useEffect(() => {
-        const newTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        setTotal(newTotal);
-    }, [cartItems]);
-
-    const updateQuantity = (id, change) => {
-        setCartItems(prevItems => {
-            return prevItems.map(item => {
-                if (item.id === id) {
-                    const newQuantity = Math.max(1, item.quantity + change);
-                    return { ...item, quantity: newQuantity };
-                }
-                return item;
-            });
-        });
-    };
-
-    const removeItem = (id) => {
+    const handleRemoveItem = (id, name) => {
         Alert.alert(
             "Supprimer l'article",
-            "Êtes-vous sûr de vouloir retirer cet article du panier ?",
+            `Êtes-vous sûr de vouloir retirer "${name}" du panier ?`,
             [
                 { text: "Annuler", style: "cancel" },
                 {
                     text: "Supprimer",
                     style: "destructive",
-                    onPress: () => setCartItems(prev => prev.filter(item => item.id !== id))
+                    onPress: () => removeFromCart(id)
                 }
             ]
         );
@@ -88,7 +58,7 @@ const CartScreen = ({ navigation }) => {
             </View>
             <TouchableOpacity
                 style={styles.removeButton}
-                onPress={() => removeItem(item.id)}
+                onPress={() => handleRemoveItem(item.id, item.name)}
             >
                 <Ionicons name="trash-outline" size={20} color={COLORS.error} />
             </TouchableOpacity>
