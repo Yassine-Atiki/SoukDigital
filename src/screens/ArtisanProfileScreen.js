@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -10,18 +10,30 @@ import {
     Dimensions,
     FlatList,
     Platform,
+    ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
-import { PRODUCTS } from '../data/mockData';
+import { useProducts } from '../context/ProductsContext';
 
 const { width, height } = Dimensions.get('window');
 
 const ArtisanProfileScreen = ({ navigation, route }) => {
     const { artisan } = route.params;
+    const { products, loading } = useProducts();
+    const [artisanProducts, setArtisanProducts] = useState([]);
 
-    // Filter products for this artisan
-    const artisanProducts = PRODUCTS.filter(p => p.artisan === artisan.name);
+    useEffect(() => {
+        // Filtrer les produits de cet artisan depuis la base de données
+        if (products && products.length > 0) {
+            const filtered = products.filter(p => 
+                p.artisanId === artisan.id || 
+                p.artisanName === artisan.name ||
+                p.artisan === artisan.name
+            );
+            setArtisanProducts(filtered);
+        }
+    }, [products, artisan]);
 
     const renderProductItem = ({ item }) => (
         <TouchableOpacity

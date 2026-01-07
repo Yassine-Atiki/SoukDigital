@@ -46,6 +46,8 @@ export const AuthProvider = ({ children }) => {
       setUser(result.user);
       setUserType(result.user.userType);
       setIsAuthenticated(true);
+      
+      console.log('✅ Utilisateur connecté:', result.user);
     }
 
     return result;
@@ -77,6 +79,7 @@ export const AuthProvider = ({ children }) => {
     const result = await AuthService.updateProfile(updates);
     if (result.success) {
       setUser(result.user);
+      console.log('✅ Profil mis à jour dans AuthContext:', result.user);
     }
     return result;
   };

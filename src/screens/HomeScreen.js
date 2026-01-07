@@ -8,7 +8,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     FlatList,
     Image,
     TouchableOpacity,
@@ -19,8 +18,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
-import { CATEGORIES, PRODUCTS } from '../data/mockData';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useFavorites } from '../context/FavoritesContext';
 
 import DataService from '../services/DataService';
@@ -29,12 +27,22 @@ const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = (width - SPACING.l * 2 - SPACING.m) / 2;
 
 const HomeScreen = ({ navigation }) => {
-    const insets = useSafeAreaInsets();
     const { toggleFavorite, isFavorite } = useFavorites();
     const [selectedCategory, setSelectedCategory] = useState('Tout');
     const [searchQuery, setSearchQuery] = useState('');
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Catégories définies localement (données statiques légitimes pour l'UI)
+    const CATEGORIES = [
+        { id: 1, name: 'Tout', icon: 'apps' },
+        { id: 2, name: 'Tissage', icon: 'color-palette' },
+        { id: 3, name: 'Zellige', icon: 'grid' },
+        { id: 4, name: 'Poterie', icon: 'flask' },
+        { id: 5, name: 'Bois', icon: 'leaf' },
+        { id: 6, name: 'Cuir', icon: 'briefcase' },
+        { id: 7, name: 'Bijoux', icon: 'diamond' },
+    ];
 
     useEffect(() => {
         const loadProducts = async () => {
@@ -119,7 +127,7 @@ const HomeScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
+        <SafeAreaWrapper backgroundColor={COLORS.background}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -180,7 +188,7 @@ const HomeScreen = ({ navigation }) => {
                     }
                 />
             )}
-        </View>
+        </SafeAreaWrapper>
     );
 };
 

@@ -119,6 +119,15 @@ const AddEditProductScreen = ({ navigation, route }) => {
 
         setIsLoading(true);
         try {
+            console.log('📝 Données avant envoi:', {
+                name: name.trim(),
+                category,
+                price: parseFloat(price),
+                stock: parseInt(stock),
+                hasImage: !!image,
+                imageUri: image,
+            });
+
             const productData = {
                 name: name.trim(),
                 description: description.trim(),

@@ -10,7 +10,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     ScrollView,
     TouchableOpacity,
     StatusBar,
@@ -21,6 +20,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuth } from '../context/AuthContext';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
@@ -85,7 +85,7 @@ const EditProfileScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -175,7 +175,7 @@ const EditProfileScreen = ({ navigation }) => {
                     />
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 

@@ -1,10 +1,9 @@
-import StorageService from './StorageService';
-
-const USERS_KEY = 'souk_users';
-const CURRENT_USER_KEY = 'souk_current_user';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import HttpService from './HttpService';
+import { API_ENDPOINTS, STORAGE_KEYS, API_BASE_URL } from '../config/api';
 
 /**
- * Service for handling User Authentication and Management.
+ * Service for handling User Authentication and Management with API.
  */
 const AuthService = {
     /**
@@ -16,59 +15,52 @@ const AuthService = {
      */
     login: async (email, password, userType) => {
         try {
-            // Simulate network delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            console.log('🔐 Tentative de login:', { email, userType });
+            
+            const response = await HttpService.post(API_ENDPOINTS.LOGIN, {
+                email,
+                password,
+                userType, // L'API backend attend 'userType' en camelCase
+            });
 
-            // In a real app, we would hash passwords and check against a DB.
-            // Here we will check if user exists in our local "DB" or create a mock one if it's a demo login.
+            console.log('📥 Réponse login reçue:', response);
 
-            const users = await StorageService.getItem(USERS_KEY) || [];
-            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.userType === userType);
-
-            if (user) {
-                // Check password (simple string comparison for demo)
-                if (user.password === password) {
-                    await StorageService.setItem(CURRENT_USER_KEY, user);
-                    return { success: true, user };
-                } else {
-                    return { success: false, error: 'Mot de passe incorrect' };
-                }
+            if (response.success) {
+                console.log('✅ Login réussi, token reçu');
+                // Sauvegarder le token JWT
+                await HttpService.saveToken(response.token);
+                
+                // L'API retourne déjà les données en camelCase (name, userType, avatar)
+                const user = {
+                    id: response.user.id,
+                    name: response.user.name,  // L'API retourne 'name' pas 'full_name'
+                    email: response.user.email,
+                    userType: response.user.userType,  // L'API retourne 'userType' pas 'user_type'
+                    phone: response.user.phone,
+                    bio: response.user.bio,
+                    avatar: response.user.avatar 
+                        ? (response.user.avatar.startsWith('http') 
+                            ? response.user.avatar 
+                            : `${API_BASE_URL}${response.user.avatar}`)
+                        : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80',
+                    specialty: response.user.specialty,
+                    location: response.user.location,
+                    rating: response.user.rating,
+                };
+                
+                console.log('✅ Utilisateur après adaptation:', user);
+                
+                // Sauvegarder l'utilisateur localement
+                await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+                
+                return { success: true, user };
             } else {
-                // For demo purposes, if user doesn't exist, we can either fail or auto-create.
-                // Let's fail to encourage signup, BUT allow specific demo accounts.
-                // TESTING_GUIDE: user@test.com / password
-                if (email === 'user@test.com' && password === 'password') {
-                    const demoUser = {
-                        id: 'test_user_1',
-                        name: 'Test User',
-                        email: email,
-                        userType: userType,
-                        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80',
-                        password: password
-                    };
-                    await StorageService.setItem(CURRENT_USER_KEY, demoUser);
-                    return { success: true, user: demoUser };
-                }
-
-                // Demo account: demo@souk.ma / 123456
-                if (email === 'demo@souk.ma' && password === '123456') {
-                    const demoUser = {
-                        id: 'demo_user_1',
-                        name: 'Demo User',
-                        email: email,
-                        userType: userType,
-                        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80',
-                        password: password
-                    };
-                    await StorageService.setItem(CURRENT_USER_KEY, demoUser);
-                    return { success: true, user: demoUser };
-                }
-
-                return { success: false, error: 'Utilisateur non trouvé. Veuillez vous inscrire.' };
+                console.log('❌ Login échoué:', response.error);
+                return { success: false, error: response.error || 'Erreur de connexion' };
             }
         } catch (error) {
-            console.error('Login error:', error);
-            return { success: false, error: 'Erreur de connexion' };
+            console.error('❌ Erreur login (exception):', error);
+            return { success: false, error: error.message || 'Erreur de connexion' };
         }
     },
 
@@ -82,32 +74,45 @@ const AuthService = {
      */
     signup: async (fullName, email, password, userType) => {
         try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await HttpService.post(API_ENDPOINTS.REGISTER, {
+                fullName, // L'API backend attend 'fullName' en camelCase
+                email,
+                password,
+                userType, // L'API backend attend 'userType' en camelCase
+            });
 
-            const users = await StorageService.getItem(USERS_KEY) || [];
-
-            if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-                return { success: false, error: 'Cet email est déjà utilisé' };
+            if (response.success) {
+                // Sauvegarder le token JWT
+                await HttpService.saveToken(response.token);
+                
+                // L'API retourne déjà les données en camelCase (name, userType, avatar)
+                const user = {
+                    id: response.user.id,
+                    name: response.user.name,  // L'API retourne 'name' pas 'full_name'
+                    email: response.user.email,
+                    userType: response.user.userType,  // L'API retourne 'userType' pas 'user_type'
+                    phone: response.user.phone,
+                    bio: response.user.bio,
+                    avatar: response.user.avatar 
+                        ? (response.user.avatar.startsWith('http') 
+                            ? response.user.avatar 
+                            : `${API_BASE_URL}${response.user.avatar}`)
+                        : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80',
+                    specialty: response.user.specialty,
+                    location: response.user.location,
+                    rating: response.user.rating,
+                };
+                
+                // Sauvegarder l'utilisateur localement
+                await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+                
+                return { success: true, user };
+            } else {
+                return { success: false, error: response.error || 'Erreur lors de l\'inscription' };
             }
-
-            const newUser = {
-                id: Date.now().toString(),
-                name: fullName,
-                email: email,
-                password: password, // In production, NEVER store plain text passwords
-                userType: userType,
-                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80',
-                createdAt: new Date().toISOString()
-            };
-
-            users.push(newUser);
-            await StorageService.setItem(USERS_KEY, users);
-            await StorageService.setItem(CURRENT_USER_KEY, newUser);
-
-            return { success: true, user: newUser };
         } catch (error) {
             console.error('Signup error:', error);
-            return { success: false, error: 'Erreur lors de l\'inscription' };
+            return { success: false, error: error.message || 'Erreur lors de l\'inscription' };
         }
     },
 
@@ -115,7 +120,17 @@ const AuthService = {
      * Logout user
      */
     logout: async () => {
-        await StorageService.removeItem(CURRENT_USER_KEY);
+        try {
+            // Supprimer le token JWT
+            await HttpService.removeToken();
+            
+            // Supprimer l'utilisateur du cache AsyncStorage
+            await AsyncStorage.removeItem(STORAGE_KEYS.USER);
+            
+            console.log('✅ Logout: Token et cache utilisateur supprimés');
+        } catch (error) {
+            console.error('Erreur lors du logout:', error);
+        }
     },
 
     /**
@@ -123,7 +138,55 @@ const AuthService = {
      * @returns {Promise<Object|null>}
      */
     getCurrentUser: async () => {
-        return await StorageService.getItem(CURRENT_USER_KEY);
+        try {
+            const token = await HttpService.getToken();
+            if (!token) {
+                return null;
+            }
+
+            // Vérifier le token et récupérer les données fraîches de la BD
+            try {
+                const response = await HttpService.post(API_ENDPOINTS.VERIFY, {}, true);
+                console.log('🔍 Réponse API /verify:', response);
+                
+                if (response.success) {
+                    // Adapter le format de l'utilisateur retourné par l'API
+                    const user = {
+                        id: response.user.id,
+                        name: response.user.name,  // L'API retourne déjà 'name'
+                        email: response.user.email,
+                        userType: response.user.userType,  // L'API retourne déjà 'userType'
+                        phone: response.user.phone,
+                        bio: response.user.bio,
+                        avatar: response.user.avatar 
+                            ? (response.user.avatar.startsWith('http') 
+                                ? response.user.avatar 
+                                : `${API_BASE_URL}${response.user.avatar}`)
+                            : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80',
+                        specialty: response.user.specialty,
+                        location: response.user.location,
+                        rating: response.user.rating,
+                    };
+
+                    console.log('✅ Utilisateur récupéré de la BD:', user);
+
+                    // Mettre à jour le cache local avec les données fraîches
+                    await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+
+                    return user;
+                }
+            } catch (error) {
+                // Token invalide, déconnecter
+                await HttpService.removeToken();
+                await AsyncStorage.removeItem(STORAGE_KEYS.USER);
+                return null;
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('Get current user error:', error);
+            return null;
+        }
     },
 
     /**
@@ -133,24 +196,79 @@ const AuthService = {
      */
     updateProfile: async (updates) => {
         try {
-            const currentUser = await StorageService.getItem(CURRENT_USER_KEY);
-            if (!currentUser) return { success: false, error: 'Non connecté' };
+            console.log('📝 Mise à jour du profil - Données reçues:', updates);
 
-            const updatedUser = { ...currentUser, ...updates };
-            await StorageService.setItem(CURRENT_USER_KEY, updatedUser);
-
-            // Also update in the main users list
-            const users = await StorageService.getItem(USERS_KEY) || [];
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            if (userIndex >= 0) {
-                users[userIndex] = { ...users[userIndex], ...updates };
-                await StorageService.setItem(USERS_KEY, users);
+            // Créer un FormData pour envoyer les données et l'avatar
+            const formData = new FormData();
+            
+            if (updates.name) {
+                formData.append('full_name', updates.name);
+                console.log('✏️ Nom à mettre à jour:', updates.name);
+            }
+            if (updates.phone) {
+                formData.append('phone', updates.phone);
+                console.log('📞 Téléphone à mettre à jour:', updates.phone);
+            }
+            if (updates.bio !== undefined) {
+                formData.append('bio', updates.bio);
+                console.log('📄 Bio à mettre à jour:', updates.bio);
+            }
+            if (updates.specialty) {
+                formData.append('specialty', updates.specialty);
+                console.log('🎨 Spécialité à mettre à jour:', updates.specialty);
+            }
+            if (updates.location) {
+                formData.append('location', updates.location);
+                console.log('📍 Localisation à mettre à jour:', updates.location);
+            }
+            
+            // Si l'avatar est un URI local (nouvelle photo sélectionnée)
+            if (updates.avatar && updates.avatar.startsWith('file://')) {
+                const uri = updates.avatar;
+                const filename = uri.split('/').pop();
+                const match = /\.(\w+)$/.exec(filename);
+                const type = match ? `image/${match[1]}` : 'image/jpeg';
+                
+                formData.append('avatar', {
+                    uri,
+                    name: filename,
+                    type,
+                });
+                
+                console.log('📸 Avatar à uploader:', { uri, filename, type });
             }
 
-            return { success: true, user: updatedUser };
+            const response = await HttpService.put(API_ENDPOINTS.UPDATE_PROFILE, formData, true);
+
+            if (response.success) {
+                // Adapter le format de l'utilisateur retourné
+                const user = {
+                    id: response.user.id,
+                    name: response.user.full_name,  // L'API /users/profile retourne 'full_name'
+                    email: response.user.email,
+                    userType: response.user.user_type,  // L'API /users/profile retourne 'user_type'
+                    phone: response.user.phone,
+                    bio: response.user.bio,
+                    avatar: response.user.avatar_url 
+                        ? `${API_BASE_URL}${response.user.avatar_url}`
+                        : 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80',
+                    specialty: response.user.specialty,
+                    location: response.user.location,
+                    rating: response.user.rating,
+                };
+                
+                console.log('✅ Profil mis à jour:', user);
+                
+                // Mettre à jour l'utilisateur local
+                await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+                
+                return { success: true, user };
+            } else {
+                return { success: false, error: response.error };
+            }
         } catch (error) {
             console.error('Update profile error:', error);
-            return { success: false, error: 'Erreur de mise à jour' };
+            return { success: false, error: error.message };
         }
     }
 };

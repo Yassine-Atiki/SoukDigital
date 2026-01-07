@@ -4,35 +4,54 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { Alert } from 'react-native';
-import StorageService from '../services/StorageService';
-import { PRODUCTS } from '../data/mockData';
+import HttpService from '../services/HttpService';
+import { API_ENDPOINTS } from '../config/api';
 
 const FavoritesContext = createContext();
-
-const FAVORITES_KEY = 'souk_favorites';
 
 export const FavoritesProvider = ({ children }) => {
     const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        loadFavorites();
+        // Ne pas charger les favoris automatiquement au démarrage
+        // Ils seront chargés après la connexion
+        setLoading(false);
     }, []);
 
     const loadFavorites = async () => {
         try {
-            const saved = await StorageService.getItem(FAVORITES_KEY);
-            if (saved && Array.isArray(saved)) {
-                setFavorites(saved);
-            } else {
-                // Initialize with first 3 products for demo
-                const initialFavorites = PRODUCTS.slice(0, 3);
-                setFavorites(initialFavorites);
-                await StorageService.setItem(FAVORITES_KEY, initialFavorites);
+            setLoading(true);
+            
+            // Vérifier si l'utilisateur est connecté
+            const token = await HttpService.getToken();
+            if (!token) {
+                setFavorites([]);
+                setLoading(false);
+                return;
+            }
+            
+            const response = await HttpService.get(API_ENDPOINTS.FAVORITES, true);
+
+            if (response.success) {
+                // Adapter le format des favoris
+                const adaptedFavorites = response.favorites.map(f => ({
+                    id: f.id?.toString(),
+                    name: f.name,
+                    description: f.description,
+                    price: parseFloat(f.price),
+                    category: f.category,
+                    image: f.image_url,
+                    artisanId: f.artisan_id?.toString(),
+                    artisanName: f.artisan_name,
+                    artisanLocation: f.artisan_location,
+                    rating: parseFloat(f.rating) || 0,
+                }));
+                
+                setFavorites(adaptedFavorites);
             }
         } catch (error) {
             console.error('Error loading favorites:', error);
-            setFavorites([]);
         } finally {
             setLoading(false);
         }
@@ -47,11 +66,20 @@ export const FavoritesProvider = ({ children }) => {
                 return false;
             }
 
-            const newFavorites = [...favorites, product];
-            setFavorites(newFavorites);
-            await StorageService.setItem(FAVORITES_KEY, newFavorites);
-            Alert.alert('Ajouté aux favoris', `${product.name} a été ajouté à vos favoris`);
-            return true;
+            const response = await HttpService.post(
+                API_ENDPOINTS.TOGGLE_FAVORITE,
+                { productId: product.id },
+                true
+            );
+
+            if (response.success && response.action === 'added') {
+                const newFavorites = [...favorites, product];
+                setFavorites(newFavorites);
+                Alert.alert('Ajouté aux favoris', `${product.name} a été ajouté à vos favoris`);
+                return true;
+            }
+            
+            return false;
         } catch (error) {
             console.error('Error adding to favorites:', error);
             Alert.alert('Erreur', 'Impossible d\'ajouter aux favoris');
@@ -61,10 +89,19 @@ export const FavoritesProvider = ({ children }) => {
 
     const removeFromFavorites = async (productId) => {
         try {
-            const newFavorites = favorites.filter(item => item.id !== productId);
-            setFavorites(newFavorites);
-            await StorageService.setItem(FAVORITES_KEY, newFavorites);
-            return true;
+            const response = await HttpService.post(
+                API_ENDPOINTS.TOGGLE_FAVORITE,
+                { productId },
+                true
+            );
+
+            if (response.success && response.action === 'removed') {
+                const newFavorites = favorites.filter(item => item.id !== productId);
+                setFavorites(newFavorites);
+                return true;
+            }
+            
+            return false;
         } catch (error) {
             console.error('Error removing from favorites:', error);
             Alert.alert('Erreur', 'Impossible de retirer des favoris');
@@ -73,11 +110,44 @@ export const FavoritesProvider = ({ children }) => {
     };
 
     const toggleFavorite = async (product) => {
-        const isFavorite = favorites.find(item => item.id === product.id);
-        if (isFavorite) {
-            return await removeFromFavorites(product.id);
-        } else {
-            return await addToFavorites(product);
+        try {
+            const response = await HttpService.post(
+                API_ENDPOINTS.TOGGLE_FAVORITE,
+                { productId: product.id },
+                true
+            );
+
+            if (response.success) {
+                if (response.action === 'added') {
+                    // Charger le produit complet si nécessaire
+                    const productResponse = await HttpService.get(
+                        API_ENDPOINTS.PRODUCT_DETAIL(product.id)
+                    );
+                    if (productResponse.success) {
+                        const adaptedProduct = {
+                            id: productResponse.product.id?.toString(),
+                            name: productResponse.product.name,
+                            description: productResponse.product.description,
+                            price: parseFloat(productResponse.product.price),
+                            category: productResponse.product.category,
+                            image: productResponse.product.image_url,
+                            artisanId: productResponse.product.artisan_id?.toString(),
+                            rating: parseFloat(productResponse.product.rating) || 0,
+                        };
+                        setFavorites(prev => [...prev, adaptedProduct]);
+                    }
+                    return true;
+                } else {
+                    // Retirer des favoris
+                    setFavorites(prev => prev.filter(f => f.id !== product.id));
+                    return true;
+                }
+            }
+            
+            return false;
+        } catch (error) {
+            console.error('Error toggle favorite:', error);
+            return false;
         }
     };
 
@@ -87,8 +157,9 @@ export const FavoritesProvider = ({ children }) => {
 
     const clearFavorites = async () => {
         try {
+            // Cette fonctionnalité nécessiterait un endpoint API pour supprimer tous les favoris
+            // Pour l'instant, on peut les supprimer un par un
             setFavorites([]);
-            await StorageService.setItem(FAVORITES_KEY, []);
             return true;
         } catch (error) {
             console.error('Error clearing favorites:', error);
@@ -104,6 +175,7 @@ export const FavoritesProvider = ({ children }) => {
         toggleFavorite,
         isFavorite,
         clearFavorites,
+        loadFavorites, // Exposer loadFavorites directement pour AuthContext
         favoritesCount: favorites.length,
     };
 

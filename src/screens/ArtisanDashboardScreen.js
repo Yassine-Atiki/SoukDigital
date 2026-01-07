@@ -10,12 +10,15 @@ import {
     StatusBar,
     Dimensions,
     ScrollView,
+    ActivityIndicator,
+    RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import { useProducts } from '../context/ProductsContext';
 import { useAuth } from '../context/AuthContext';
+import ArtisanService from '../services/ArtisanService';
 
 const { width } = Dimensions.get('window');
 
@@ -23,24 +26,63 @@ const ArtisanDashboardScreen = ({ navigation }) => {
     const { getProductsByArtisan, products } = useProducts();
     const { user } = useAuth();
     const [myProducts, setMyProducts] = useState([]);
+    const [stats, setStats] = useState({
+        totalSales: 0,
+        totalOrders: 0,
+        rating: '0.0',
+        totalReviews: 0,
+        activeProducts: 0
+    });
+    const [recentOrders, setRecentOrders] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
-    // Function to load products
-    const loadMyProducts = useCallback(() => {
-        const artisanProducts = getProductsByArtisan(user?.id || 'artisan_1');
-        setMyProducts(artisanProducts.slice(0, 3)); // Show only first 3 in dashboard
+    // Function to load all data
+    const loadDashboardData = useCallback(async () => {
+        try {
+            setIsLoading(true);
+
+            // Charger les produits
+            const artisanProducts = getProductsByArtisan(user?.id || 'artisan_1');
+            setMyProducts(artisanProducts.slice(0, 3));
+
+            // Charger les statistiques
+            const statsResult = await ArtisanService.getArtisanStats();
+            if (statsResult.success) {
+                setStats(statsResult.stats);
+            }
+
+            // Charger les commandes récentes
+            const ordersResult = await ArtisanService.getRecentOrders(3);
+            if (ordersResult.success) {
+                setRecentOrders(ordersResult.orders);
+            }
+
+        } catch (error) {
+            console.error('❌ Erreur chargement dashboard:', error);
+        } finally {
+            setIsLoading(false);
+        }
     }, [getProductsByArtisan, user]);
+
+    // Fonction de refresh
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await loadDashboardData();
+        setRefreshing(false);
+    }, [loadDashboardData]);
 
     // Load products when screen comes into focus
     useFocusEffect(
         useCallback(() => {
-            loadMyProducts();
-        }, [loadMyProducts])
+            loadDashboardData();
+        }, [loadDashboardData])
     );
 
     // Also load when products context changes
     useEffect(() => {
-        loadMyProducts();
-    }, [products, loadMyProducts]);
+        loadDashboardData();
+    }, [products, loadDashboardData]);
 
     const renderProductItem = ({ item }) => (
         <View style={styles.productCard}>
@@ -86,20 +128,54 @@ const ArtisanDashboardScreen = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView 
+                showsVerticalScrollIndicator={false} 
+                contentContainerStyle={styles.scrollContent}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={[COLORS.primary]}
+                        tintColor={COLORS.primary}
+                    />
+                }
+            >
                 {/* Stats Overview */}
                 <View style={styles.statsContainer}>
                     <View style={styles.statCard}>
-                        <Text style={styles.statValue}>12,450</Text>
-                        <Text style={styles.statLabel}>Ventes (MAD)</Text>
+                        {isLoading ? (
+                            <ActivityIndicator size="small" color={COLORS.primary} />
+                        ) : (
+                            <>
+                                <Text style={styles.statValue}>
+                                    {ArtisanService.formatAmount(stats.totalSales)}
+                                </Text>
+                                <Text style={styles.statLabel}>Ventes (MAD)</Text>
+                            </>
+                        )}
                     </View>
                     <View style={styles.statCard}>
-                        <Text style={styles.statValue}>24</Text>
-                        <Text style={styles.statLabel}>Commandes</Text>
+                        {isLoading ? (
+                            <ActivityIndicator size="small" color={COLORS.primary} />
+                        ) : (
+                            <>
+                                <Text style={styles.statValue}>{stats.totalOrders}</Text>
+                                <Text style={styles.statLabel}>Commandes</Text>
+                            </>
+                        )}
                     </View>
                     <View style={styles.statCard}>
-                        <Text style={styles.statValue}>4.8</Text>
-                        <Text style={styles.statLabel}>Note</Text>
+                        {isLoading ? (
+                            <ActivityIndicator size="small" color={COLORS.primary} />
+                        ) : (
+                            <>
+                                <View style={styles.ratingContainer}>
+                                    <Text style={styles.statValue}>{stats.rating}</Text>
+                                    <Ionicons name="star" size={20} color={COLORS.gold} style={styles.starIcon} />
+                                </View>
+                                <Text style={styles.statLabel}>Note ({stats.totalReviews} avis)</Text>
+                            </>
+                        )}
                     </View>
                 </View>
 
@@ -145,17 +221,83 @@ const ArtisanDashboardScreen = ({ navigation }) => {
                 {/* Recent Orders */}
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>Commandes Récentes</Text>
+                    {recentOrders.length > 0 && (
+                        <TouchableOpacity>
+                            <Text style={styles.seeAllText}>Voir tout</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
 
-                {/* Mock Order Item */}
-                <View style={styles.orderCard}>
-                    <View style={styles.orderHeader}>
-                        <Text style={styles.orderId}>#CMD-284</Text>
-                        <Text style={styles.orderStatus}>En cours</Text>
+                {isLoading ? (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color={COLORS.primary} />
                     </View>
-                    <Text style={styles.orderDate}>Aujourd'hui, 14:30</Text>
-                    <Text style={styles.orderTotal}>450 MAD</Text>
-                </View>
+                ) : recentOrders.length === 0 ? (
+                    <View style={styles.emptyOrdersContainer}>
+                        <Ionicons name="receipt-outline" size={64} color={COLORS.textTertiary} />
+                        <Text style={styles.emptyOrdersText}>Aucune commande pour le moment</Text>
+                        <Text style={styles.emptyOrdersSubtext}>
+                            Les commandes de vos produits apparaîtront ici
+                        </Text>
+                    </View>
+                ) : (
+                    recentOrders.map((order) => (
+                        <TouchableOpacity 
+                            key={order.id}
+                            style={styles.orderCard}
+                            activeOpacity={0.7}
+                        >
+                            <View style={styles.orderHeader}>
+                                <View style={styles.orderLeft}>
+                                    <Image 
+                                        source={{ 
+                                            uri: order.customerAvatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' 
+                                        }}
+                                        style={styles.customerAvatar}
+                                    />
+                                    <View style={styles.orderInfo}>
+                                        <Text style={styles.orderId}>#{order.orderNumber}</Text>
+                                        <Text style={styles.customerName}>{order.customerName}</Text>
+                                    </View>
+                                </View>
+                                <View 
+                                    style={[
+                                        styles.orderStatusBadge, 
+                                        { backgroundColor: `${ArtisanService.getStatusColor(order.status)}20` }
+                                    ]}
+                                >
+                                    <Text 
+                                        style={[
+                                            styles.orderStatus, 
+                                            { color: ArtisanService.getStatusColor(order.status) }
+                                        ]}
+                                    >
+                                        {ArtisanService.translateStatus(order.status)}
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={styles.orderFooter}>
+                                <View style={styles.orderDetails}>
+                                    <Ionicons name="cube-outline" size={16} color={COLORS.textSecondary} />
+                                    <Text style={styles.orderItemsCount}>
+                                        {order.itemsCount} article{order.itemsCount > 1 ? 's' : ''}
+                                    </Text>
+                                </View>
+                                <Text style={styles.orderTotal}>
+                                    {ArtisanService.formatAmount(order.totalAmount)} MAD
+                                </Text>
+                            </View>
+                            <Text style={styles.orderDate}>
+                                {new Date(order.createdAt).toLocaleDateString('fr-FR', { 
+                                    day: 'numeric', 
+                                    month: 'long', 
+                                    hour: '2-digit', 
+                                    minute: '2-digit' 
+                                })}
+                            </Text>
+                        </TouchableOpacity>
+                    ))
+                )}
             </ScrollView>
         </SafeAreaView>
     );
@@ -332,36 +474,99 @@ const styles = StyleSheet.create({
         padding: SPACING.m,
         borderRadius: BORDER_RADIUS.lg,
         ...SHADOWS.subtle,
-        marginBottom: SPACING.s,
+        marginBottom: SPACING.m,
     },
     orderHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 4,
+        alignItems: 'center',
+        marginBottom: SPACING.s,
+    },
+    orderLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    customerAvatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        marginRight: SPACING.s,
+    },
+    orderInfo: {
+        flex: 1,
     },
     orderId: {
         fontSize: FONTS.sizes.md,
         fontWeight: 'bold',
         color: COLORS.text,
+        marginBottom: 2,
+    },
+    customerName: {
+        fontSize: FONTS.sizes.sm,
+        color: COLORS.textSecondary,
+    },
+    orderStatusBadge: {
+        paddingHorizontal: SPACING.s,
+        paddingVertical: 4,
+        borderRadius: BORDER_RADIUS.sm,
     },
     orderStatus: {
         fontSize: FONTS.sizes.xs,
-        color: COLORS.secondary,
-        fontWeight: 'bold',
-        backgroundColor: COLORS.secondaryLight,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 4,
+        fontWeight: '600',
+    },
+    orderFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: SPACING.s,
+        marginBottom: SPACING.xs,
+    },
+    orderDetails: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    orderItemsCount: {
+        fontSize: FONTS.sizes.sm,
+        color: COLORS.textSecondary,
+        marginLeft: 4,
     },
     orderDate: {
         fontSize: FONTS.sizes.xs,
         color: COLORS.textTertiary,
-        marginBottom: 8,
     },
     orderTotal: {
-        fontSize: FONTS.sizes.md,
+        fontSize: FONTS.sizes.lg,
         fontWeight: 'bold',
         color: COLORS.primary,
+    },
+    loadingContainer: {
+        padding: SPACING.xl,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyOrdersContainer: {
+        padding: SPACING.xxl,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: COLORS.surface,
+        marginHorizontal: SPACING.l,
+        borderRadius: BORDER_RADIUS.lg,
+        ...SHADOWS.subtle,
+    },
+    emptyOrdersText: {
+        fontSize: FONTS.sizes.lg,
+        fontWeight: '600',
+        color: COLORS.textSecondary,
+        marginTop: SPACING.m,
+        textAlign: 'center',
+    },
+    emptyOrdersSubtext: {
+        fontSize: FONTS.sizes.sm,
+        color: COLORS.textTertiary,
+        marginTop: SPACING.xs,
+        textAlign: 'center',
+        paddingHorizontal: SPACING.l,
     },
 });
 

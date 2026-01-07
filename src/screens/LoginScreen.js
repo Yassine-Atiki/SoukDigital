@@ -11,7 +11,7 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
@@ -54,14 +54,19 @@ const LoginScreen = ({ navigation }) => {
     if (validate()) {
       setIsLoading(true);
       try {
+        console.log('🔑 Début du login...', { email, userType });
         const result = await login(email, password, userType);
+        console.log('🔑 Résultat login:', result);
 
         if (result.success) {
+          console.log('✅ Navigation vers Main...');
           navigation.replace('Main', { userType });
         } else {
-          Alert.alert('Erreur', 'Identifiants incorrects');
+          console.log('❌ Échec login:', result.error);
+          Alert.alert('Erreur', result.error || 'Identifiants incorrects');
         }
       } catch (error) {
+        console.error('❌ Exception lors du login:', error);
         Alert.alert('Erreur', 'Une erreur est survenue lors de la connexion');
       } finally {
         setIsLoading(false);
@@ -70,7 +75,7 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaWrapper backgroundColor={COLORS.secondary}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.secondary} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -212,7 +217,7 @@ const LoginScreen = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </SafeAreaWrapper>
   );
 };
 

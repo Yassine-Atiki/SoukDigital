@@ -9,6 +9,7 @@ import { CartProvider } from './src/context/CartContext';
 import { FavoritesProvider } from './src/context/FavoritesContext';
 import { OrdersProvider } from './src/context/OrdersContext';
 import { ProductsProvider } from './src/context/ProductsContext';
+import { AppInitializer } from './src/context/AppInitializer';
 
 export default function App() {
   return (
@@ -18,10 +19,12 @@ export default function App() {
           <FavoritesProvider>
             <OrdersProvider>
               <ProductsProvider>
-                <NavigationContainer>
-                  <StatusBar style="light" />
-                  <RootNavigator />
-                </NavigationContainer>
+                <AppInitializer>
+                  <NavigationContainer>
+                    <StatusBar style="light" />
+                    <RootNavigator />
+                  </NavigationContainer>
+                </AppInitializer>
               </ProductsProvider>
             </OrdersProvider>
           </FavoritesProvider>

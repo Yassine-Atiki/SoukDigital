@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
-import { ARTISANS } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 
@@ -94,18 +93,29 @@ const ProductDetailScreen = ({ navigation, route }) => {
                     <TouchableOpacity
                         style={styles.artisanContainer}
                         onPress={() => {
-                            const artisanDetails = ARTISANS.find(a => a.name === product.artisan);
-                            if (artisanDetails) {
-                                navigation.push('ArtisanProfile', { artisan: artisanDetails });
+                            // Navigation vers le profil de l'artisan
+                            // Les données artisan viennent maintenant du produit (artisanId, artisanName)
+                            if (product.artisanId) {
+                                navigation.push('ArtisanProfile', { 
+                                    artisan: {
+                                        id: product.artisanId,
+                                        name: product.artisanName || product.artisan,
+                                        location: product.artisanLocation,
+                                    }
+                                });
                             }
                         }}
                     >
                         <View style={styles.artisanAvatar}>
-                            <Text style={styles.artisanInitials}>{product.artisan.charAt(0)}</Text>
+                            <Text style={styles.artisanInitials}>
+                                {(product.artisanName || product.artisan || 'A').charAt(0)}
+                            </Text>
                         </View>
                         <View>
                             <Text style={styles.artisanLabel}>Artisan</Text>
-                            <Text style={styles.artisanName}>{product.artisan}</Text>
+                            <Text style={styles.artisanName}>
+                                {product.artisanName || product.artisan}
+                            </Text>
                         </View>
                         <Ionicons
                             name="chevron-forward"
