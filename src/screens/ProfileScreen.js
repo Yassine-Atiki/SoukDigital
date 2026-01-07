@@ -66,7 +66,7 @@ const ProfileScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaWrapper backgroundColor={COLORS.background}>
+        <SafeAreaWrapper backgroundColor={COLORS.background} edges={['top']}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <View style={styles.header}>

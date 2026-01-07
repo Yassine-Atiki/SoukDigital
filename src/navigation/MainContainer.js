@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform, View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import HomeScreen from '../screens/HomeScreen';
 import CartScreen from '../screens/CartScreen';
@@ -15,6 +16,7 @@ const Tab = createBottomTabNavigator();
 const MainContainer = ({ route }) => {
     const { userType } = route.params || { userType: 'customer' };
     const { itemCount } = useCart();
+    const insets = useSafeAreaInsets();
 
     return (
         <Tab.Navigator
@@ -27,8 +29,8 @@ const MainContainer = ({ route }) => {
                     backgroundColor: COLORS.surface,
                     borderTopWidth: 0,
                     elevation: 10,
-                    height: Platform.OS === 'ios' ? 88 : 60,
-                    paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+                    height: (Platform.OS === 'ios' ? 50 : 60) + insets.bottom,
+                    paddingBottom: insets.bottom,
                     paddingTop: 8,
                     ...SHADOWS.medium,
                 },

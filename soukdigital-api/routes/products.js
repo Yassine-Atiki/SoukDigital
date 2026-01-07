@@ -208,11 +208,23 @@ router.put('/:id', verifyToken, verifyArtisan, async (req, res) => {
             WHERE id = ?
         `, [name, description, price, category, image || null, stock || 0, req.params.id]);
 
+        // Récupérer le produit mis à jour avec les infos de l'artisan
+        const [updatedProducts] = await db.query(`
+            SELECT 
+                p.*,
+                u.full_name as artisan_name,
+                u.location as artisan_location
+            FROM products p
+            LEFT JOIN users u ON p.artisan_id = u.id
+            WHERE p.id = ?
+        `, [req.params.id]);
+
         console.log(`✏️ Produit ${req.params.id} modifié par artisan ${artisan_id}`);
 
         res.json({
             success: true,
-            message: 'Produit modifié avec succès'
+            message: 'Produit modifié avec succès',
+            product: updatedProducts[0]
         });
     } catch (error) {
         console.error('❌ Erreur modification produit:', error);

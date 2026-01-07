@@ -10,7 +10,9 @@ const { verifyToken } = require('../middleware/auth');
  */
 router.get('/stats', verifyToken, async (req, res) => {
     try {
-        const artisanId = req.user.id;
+        const artisanId = req.user.userId;
+
+        console.log('📊 Récupération stats pour artisan ID:', artisanId);
 
         // 1. Calculer le total des ventes (somme de tous les produits vendus)
         const [salesData] = await db.query(`
@@ -67,8 +69,10 @@ router.get('/stats', verifyToken, async (req, res) => {
  */
 router.get('/recent-orders', verifyToken, async (req, res) => {
     try {
-        const artisanId = req.user.id;
+        const artisanId = req.user.userId;
         const limit = parseInt(req.query.limit) || 5;
+
+        console.log('📦 Récupération commandes récentes pour artisan ID:', artisanId, 'limit:', limit);
 
         const [orders] = await db.query(`
             SELECT DISTINCT
@@ -79,7 +83,12 @@ router.get('/recent-orders', verifyToken, async (req, res) => {
                 o.created_at,
                 u.full_name as customer_name,
                 u.avatar_url as customer_avatar,
-                COUNT(DISTINCT oi.id) as items_count
+                COUNT(DISTINCT oi.id) as items_count,
+                (SELECT p2.image_url 
+                 FROM order_items oi2 
+                 INNER JOIN products p2 ON oi2.product_id = p2.id 
+                 WHERE oi2.order_id = o.id AND p2.artisan_id = ?
+                 LIMIT 1) as product_image
             FROM orders o
             INNER JOIN order_items oi ON o.id = oi.order_id
             INNER JOIN products p ON oi.product_id = p.id
@@ -88,7 +97,9 @@ router.get('/recent-orders', verifyToken, async (req, res) => {
             GROUP BY o.id, o.order_number, o.total_amount, o.status, o.created_at, u.full_name, u.avatar_url
             ORDER BY o.created_at DESC
             LIMIT ?
-        `, [artisanId, limit]);
+        `, [artisanId, artisanId, limit]);
+
+        console.log(`✅ ${orders.length} commandes trouvées pour artisan ${artisanId}`);
 
         res.json({
             success: true,
@@ -97,6 +108,7 @@ router.get('/recent-orders', verifyToken, async (req, res) => {
                 orderNumber: order.order_number,
                 customerName: order.customer_name,
                 customerAvatar: order.customer_avatar,
+                productImage: order.product_image,
                 totalAmount: parseFloat(order.total_amount),
                 status: order.status,
                 itemsCount: parseInt(order.items_count),

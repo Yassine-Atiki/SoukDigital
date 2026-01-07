@@ -10,7 +10,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     ScrollView,
     TouchableOpacity,
     Image,
@@ -20,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import MoroccanDivider from '../components/MoroccanDivider';
 import { useOrders } from '../context/OrdersContext';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const OrderHistoryScreen = ({ navigation }) => {
     const { orders } = useOrders();
@@ -75,7 +75,7 @@ const OrderHistoryScreen = ({ navigation }) => {
         : orders.filter(order => order.status === selectedTab);
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -186,7 +186,7 @@ const OrderHistoryScreen = ({ navigation }) => {
                     </View>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 

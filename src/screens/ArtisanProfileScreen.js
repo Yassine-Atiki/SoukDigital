@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import { useProducts } from '../context/ProductsContext';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const { width, height } = Dimensions.get('window');
 
@@ -49,7 +50,7 @@ const ArtisanProfileScreen = ({ navigation, route }) => {
     );
 
     return (
-        <View style={styles.container}>
+        <SafeAreaWrapper backgroundColor="transparent">
             <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -126,7 +127,7 @@ const ArtisanProfileScreen = ({ navigation, route }) => {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-        </View>
+        </SafeAreaWrapper>
     );
 };
 

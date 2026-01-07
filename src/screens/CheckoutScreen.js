@@ -10,7 +10,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     TouchableOpacity,
     TextInput,
     ScrollView,
@@ -22,9 +21,10 @@ import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/the
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useOrders } from '../context/OrdersContext';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const CheckoutScreen = ({ navigation, route }) => {
-    const { total, cart, clearCart } = useCart();
+    const { total, cartItems, clearCart } = useCart();
     const { user } = useAuth();
     const { createOrder } = useOrders();
     const [isProcessing, setIsProcessing] = useState(false);
@@ -56,7 +56,7 @@ const CheckoutScreen = ({ navigation, route }) => {
             // Prepare order data
             const orderData = {
                 total: finalTotal,
-                items: cart.map(item => ({
+                items: cartItems.map(item => ({
                     id: item.id,
                     name: item.name,
                     price: item.price,
@@ -100,7 +100,7 @@ const CheckoutScreen = ({ navigation, route }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={COLORS.text} />
@@ -245,7 +245,7 @@ const CheckoutScreen = ({ navigation, route }) => {
                     )}
                 </TouchableOpacity>
             </View>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 

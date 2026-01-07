@@ -4,7 +4,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     ScrollView,
     TouchableOpacity,
     StatusBar,
@@ -13,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import MoroccanDivider from '../components/MoroccanDivider';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const PaymentMethodsScreen = ({ navigation }) => {
     const [paymentMethods, setPaymentMethods] = useState([
@@ -76,7 +76,7 @@ const PaymentMethodsScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -159,7 +159,7 @@ const PaymentMethodsScreen = ({ navigation }) => {
                     </View>
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 

@@ -127,7 +127,7 @@ const HomeScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaWrapper backgroundColor={COLORS.background}>
+        <SafeAreaWrapper backgroundColor={COLORS.background} edges={['top']}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -136,10 +136,6 @@ const HomeScreen = ({ navigation }) => {
                     <Text style={styles.greeting}>Bonjour,</Text>
                     <Text style={styles.title}>Digital Souk</Text>
                 </View>
-                <TouchableOpacity style={styles.notificationButton}>
-                    <Ionicons name="notifications-outline" size={24} color={COLORS.text} />
-                    <View style={styles.badge} />
-                </TouchableOpacity>
             </View>
 
             {/* Search Bar */}

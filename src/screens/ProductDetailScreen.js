@@ -3,7 +3,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     Image,
     ScrollView,
     TouchableOpacity,
@@ -16,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const { width, height } = Dimensions.get('window');
 
@@ -31,6 +31,9 @@ const ProductDetailScreen = ({ navigation, route }) => {
 
     const isFavorite = checkIsFavorite(product.id);
 
+    // L'URL de l'image est déjà construite dans ProductsContext
+    const productImage = product.image || 'https://via.placeholder.com/400';
+
     const incrementQuantity = () => setQuantity(prev => prev + 1);
     const decrementQuantity = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
@@ -45,13 +48,13 @@ const ProductDetailScreen = ({ navigation, route }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaWrapper backgroundColor="transparent">
             <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {/* Image Header */}
                 <View style={styles.imageContainer}>
-                    <Image source={{ uri: product.image }} style={styles.image} />
+                    <Image source={{ uri: productImage }} style={styles.image} />
                     <View style={styles.overlay} />
 
                     {/* Header Actions */}
@@ -158,7 +161,7 @@ const ProductDetailScreen = ({ navigation, route }) => {
                     <Ionicons name="cart" size={20} color={COLORS.surface} style={{ marginLeft: 8 }} />
                 </TouchableOpacity>
             </View>
-        </View>
+        </SafeAreaWrapper>
     );
 };
 

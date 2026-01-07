@@ -11,7 +11,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     FlatList,
     TouchableOpacity,
     StatusBar,
@@ -23,6 +22,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import { useProducts } from '../context/ProductsContext';
 import { useAuth } from '../context/AuthContext';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const ManageProductsScreen = ({ navigation }) => {
     const { products, deleteProduct, getProductsByArtisan } = useProducts();
@@ -142,7 +142,7 @@ const ManageProductsScreen = ({ navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -170,7 +170,7 @@ const ManageProductsScreen = ({ navigation }) => {
                 onRefresh={handleRefresh}
                 ListEmptyComponent={renderEmptyState}
             />
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 

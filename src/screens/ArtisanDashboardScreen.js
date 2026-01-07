@@ -3,7 +3,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     FlatList,
     Image,
     TouchableOpacity,
@@ -19,6 +18,7 @@ import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/the
 import { useProducts } from '../context/ProductsContext';
 import { useAuth } from '../context/AuthContext';
 import ArtisanService from '../services/ArtisanService';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const { width } = Dimensions.get('window');
 
@@ -111,7 +111,7 @@ const ArtisanDashboardScreen = ({ navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background} edges={['top']}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -120,12 +120,6 @@ const ArtisanDashboardScreen = ({ navigation }) => {
                     <Text style={styles.greeting}>Tableau de bord</Text>
                     <Text style={styles.title}>Mon Atelier</Text>
                 </View>
-                <TouchableOpacity style={styles.profileButton}>
-                    <Image
-                        source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80' }}
-                        style={styles.profileImage}
-                    />
-                </TouchableOpacity>
             </View>
 
             <ScrollView 
@@ -251,9 +245,11 @@ const ArtisanDashboardScreen = ({ navigation }) => {
                                 <View style={styles.orderLeft}>
                                     <Image 
                                         source={{ 
-                                            uri: order.customerAvatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80' 
+                                            uri: order.productImage 
+                                                ? `http://20.31.0.39:3000${order.productImage}`
+                                                : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&q=80'
                                         }}
-                                        style={styles.customerAvatar}
+                                        style={styles.productImage}
                                     />
                                     <View style={styles.orderInfo}>
                                         <Text style={styles.orderId}>#{order.orderNumber}</Text>
@@ -299,7 +295,7 @@ const ArtisanDashboardScreen = ({ navigation }) => {
                     ))
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 
@@ -492,6 +488,13 @@ const styles = StyleSheet.create({
         height: 40,
         borderRadius: 20,
         marginRight: SPACING.s,
+    },
+    productImage: {
+        width: 50,
+        height: 50,
+        borderRadius: BORDER_RADIUS.sm,
+        marginRight: SPACING.s,
+        backgroundColor: COLORS.background,
     },
     orderInfo: {
         flex: 1,

@@ -12,8 +12,57 @@ router.post('/', verifyToken, async (req, res) => {
     try {
         await connection.beginTransaction();
 
-        const { items, shippingAddress, paymentMethod, totalAmount } = req.body;
+        const { 
+            items, 
+            delivery_address, 
+            delivery_city, 
+            delivery_phone,
+            payment_method 
+        } = req.body;
+        
         const customer_id = req.user.userId;
+
+        console.log('📦 Création commande - Données reçues:', {
+            customer_id,
+            itemsCount: items?.length,
+            delivery_address,
+            delivery_city,
+            payment_method
+        });
+
+        // Validation
+        if (!items || items.length === 0) {
+            throw new Error('Aucun article dans la commande');
+        }
+
+        // Calculer le total en récupérant les prix depuis la base de données
+        let totalAmount = 0;
+        const itemsWithDetails = [];
+        
+        for (const item of items) {
+            const [products] = await connection.query(
+                'SELECT id, name, price FROM products WHERE id = ?',
+                [item.product_id]
+            );
+            
+            if (products.length === 0) {
+                throw new Error(`Produit ${item.product_id} non trouvé`);
+            }
+            
+            const product = products[0];
+            const subtotal = parseFloat(product.price) * parseInt(item.quantity);
+            totalAmount += subtotal;
+            
+            itemsWithDetails.push({
+                ...item,
+                name: product.name,
+                price: product.price,
+                subtotal
+            });
+        }
+        
+        const shippingCost = 50.00;
+        totalAmount += shippingCost;
 
         // Générer un numéro de commande unique
         const orderNumber = 'CMD' + Date.now().toString().slice(-6);
@@ -28,54 +77,61 @@ router.post('/', verifyToken, async (req, res) => {
             orderNumber,
             customer_id,
             totalAmount,
-            50.00, // Frais de livraison fixes
-            paymentMethod,
-            shippingAddress.address,
-            shippingAddress.city,
-            shippingAddress.postalCode || '',
-            shippingAddress.phone || ''
+            shippingCost,
+            payment_method || 'cash_on_delivery',
+            delivery_address || '',
+            delivery_city || 'Casablanca',
+            '', // delivery_postal_code
+            delivery_phone || ''
         ]);
 
         const orderId = orderResult.insertId;
 
         // Ajouter les articles de la commande
-        for (const item of items) {
+        for (const itemDetail of itemsWithDetails) {
             await connection.query(`
                 INSERT INTO order_items (order_id, product_id, product_name, quantity, unit_price, subtotal)
                 VALUES (?, ?, ?, ?, ?, ?)
             `, [
                 orderId,
-                item.id,
-                item.name,
-                item.quantity,
-                item.price,
-                item.price * item.quantity
+                itemDetail.product_id,
+                itemDetail.name,
+                itemDetail.quantity,
+                itemDetail.price,
+                itemDetail.subtotal
             ]);
 
             // Décrémenter le stock
             await connection.query(`
                 UPDATE products SET stock = stock - ? WHERE id = ?
-            `, [item.quantity, item.id]);
+            `, [itemDetail.quantity, itemDetail.product_id]);
         }
 
         await connection.commit();
 
-        console.log(`✅ Nouvelle commande créée: ${orderNumber} pour client ${customer_id}`);
+        console.log(`✅ Nouvelle commande créée: ${orderNumber} pour client ${customer_id}, Total: ${totalAmount} MAD`);
 
         res.status(201).json({
             success: true,
             order: {
                 id: orderId,
-                orderNumber,
+                order_number: orderNumber,
+                total_amount: totalAmount,
+                shipping_cost: shippingCost,
+                status: 'processing',
+                delivery_address,
+                delivery_city,
+                delivery_phone,
                 message: 'Commande créée avec succès'
             }
         });
     } catch (error) {
         await connection.rollback();
-        console.error('❌ Erreur création commande:', error);
+        console.error('❌ Erreur création commande:', error.message);
+        console.error('Stack:', error.stack);
         res.status(500).json({ 
             success: false, 
-            error: 'Erreur serveur lors de la création de la commande' 
+            error: error.message || 'Erreur serveur lors de la création de la commande' 
         });
     } finally {
         connection.release();

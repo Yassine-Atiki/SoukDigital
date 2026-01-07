@@ -4,7 +4,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     FlatList,
     TouchableOpacity,
     StatusBar,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 import StorageService from '../services/StorageService';
 
@@ -121,7 +121,7 @@ const AddressesScreen = ({ navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -148,7 +148,7 @@ const AddressesScreen = ({ navigation }) => {
                 <Ionicons name="add-circle-outline" size={24} color={COLORS.surface} />
                 <Text style={styles.addNewText}>Ajouter une nouvelle adresse</Text>
             </TouchableOpacity>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 

@@ -1,62 +1,20 @@
 // src/screens/SearchScreen.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     TextInput,
     FlatList,
     TouchableOpacity,
     Image,
     StatusBar,
+    ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
-
-// Mock data
-const ALL_PRODUCTS = [
-    {
-        id: '1',
-        name: 'Tajine Berbère',
-        price: 450,
-        image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400',
-        category: 'Cuisine',
-        artisan: 'Fatima Zahra',
-    },
-    {
-        id: '2',
-        name: 'Tapis Amazigh',
-        price: 1200,
-        image: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=400',
-        category: 'Décoration',
-        artisan: 'Hassan El Amrani',
-    },
-    {
-        id: '3',
-        name: 'Babouches Cuir',
-        price: 280,
-        image: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400',
-        category: 'Chaussures',
-        artisan: 'Mohamed Tazi',
-    },
-    {
-        id: '4',
-        name: 'Théière en Argent',
-        price: 850,
-        image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400',
-        category: 'Cuisine',
-        artisan: 'Aicha Bennani',
-    },
-    {
-        id: '5',
-        name: 'Caftan Brodé',
-        price: 1500,
-        image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400',
-        category: 'Mode',
-        artisan: 'Samira Alaoui',
-    },
-];
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { useProducts } from '../context/ProductsContext';
 
 const POPULAR_SEARCHES = [
     'Tajine',
@@ -68,6 +26,7 @@ const POPULAR_SEARCHES = [
 ];
 
 const SearchScreen = ({ navigation }) => {
+    const { products, loading } = useProducts();
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
 
@@ -78,10 +37,11 @@ const SearchScreen = ({ navigation }) => {
             return;
         }
 
-        const results = ALL_PRODUCTS.filter(product =>
+        // Rechercher dans les vrais produits de la base de données
+        const results = products.filter(product =>
             product.name.toLowerCase().includes(query.toLowerCase()) ||
-            product.category.toLowerCase().includes(query.toLowerCase()) ||
-            product.artisan.toLowerCase().includes(query.toLowerCase())
+            (product.category && product.category.toLowerCase().includes(query.toLowerCase())) ||
+            (product.description && product.description.toLowerCase().includes(query.toLowerCase()))
         );
         setSearchResults(results);
     };
@@ -91,23 +51,30 @@ const SearchScreen = ({ navigation }) => {
         handleSearch(term);
     };
 
-    const renderProduct = ({ item }) => (
-        <TouchableOpacity
-            style={styles.productCard}
-            onPress={() => navigation.navigate('ProductDetail', { product: item })}
-            activeOpacity={0.7}
-        >
-            <Image source={{ uri: item.image }} style={styles.productImage} />
-            <View style={styles.productInfo}>
-                <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
-                <Text style={styles.productArtisan}>{item.artisan}</Text>
-                <Text style={styles.productPrice}>{item.price} DH</Text>
-            </View>
-        </TouchableOpacity>
-    );
+    const renderProduct = ({ item }) => {
+        // L'URL de l'image est déjà construite dans ProductsContext
+        const imageUrl = item.image || 'https://via.placeholder.com/400';
+
+        console.log('🔍 Produit recherche:', item.name, 'Image:', imageUrl);
+
+        return (
+            <TouchableOpacity
+                style={styles.productCard}
+                onPress={() => navigation.navigate('ProductDetail', { product: item })}
+                activeOpacity={0.7}
+            >
+                <Image source={{ uri: imageUrl }} style={styles.productImage} />
+                <View style={styles.productInfo}>
+                    <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
+                    <Text style={styles.productCategory}>{item.category || 'Produit artisanal'}</Text>
+                    <Text style={styles.productPrice}>{item.price} MAD</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -156,9 +123,14 @@ const SearchScreen = ({ navigation }) => {
                     <FlatList
                         data={searchResults}
                         renderItem={renderProduct}
-                        keyExtractor={item => item.id}
+                        keyExtractor={item => item.id.toString()}
                         showsVerticalScrollIndicator={false}
                     />
+                </View>
+            ) : loading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={COLORS.primary} />
+                    <Text style={styles.loadingText}>Chargement des produits...</Text>
                 </View>
             ) : (
                 <View style={styles.emptyState}>
@@ -169,7 +141,7 @@ const SearchScreen = ({ navigation }) => {
                     </Text>
                 </View>
             )}
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 
@@ -264,7 +236,7 @@ const styles = StyleSheet.create({
         color: COLORS.text,
         marginBottom: SPACING.xs,
     },
-    productArtisan: {
+    productCategory: {
         fontSize: FONTS.sizes.sm,
         color: COLORS.textSecondary,
         marginBottom: SPACING.xs,
@@ -273,6 +245,17 @@ const styles = StyleSheet.create({
         fontSize: FONTS.sizes.md,
         fontWeight: 'bold',
         color: COLORS.primary,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: SPACING.xl,
+    },
+    loadingText: {
+        marginTop: SPACING.m,
+        fontSize: FONTS.sizes.md,
+        color: COLORS.textSecondary,
     },
     emptyState: {
         flex: 1,

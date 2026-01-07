@@ -4,7 +4,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     ScrollView,
     TouchableOpacity,
     Switch,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const SettingsScreen = ({ navigation }) => {
     const [notifications, setNotifications] = useState(true);
@@ -173,7 +173,7 @@ const SettingsScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             {/* Header */}
@@ -195,7 +195,7 @@ const SettingsScreen = ({ navigation }) => {
                     </View>
                 ))}
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 

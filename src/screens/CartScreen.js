@@ -3,7 +3,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     FlatList,
     Image,
     TouchableOpacity,
@@ -13,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import { useCart } from '../context/CartContext';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const CartScreen = ({ navigation }) => {
     const { cartItems, total, updateQuantity, removeFromCart } = useCart();
@@ -66,7 +66,7 @@ const CartScreen = ({ navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaWrapper backgroundColor={COLORS.background} edges={['top']}>
             <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
             <View style={styles.header}>
@@ -104,13 +104,13 @@ const CartScreen = ({ navigation }) => {
                     <Text style={styles.emptyText}>Votre panier est vide</Text>
                     <TouchableOpacity
                         style={styles.shopButton}
-                        onPress={() => navigation.navigate('Home')}
+                        onPress={() => navigation.navigate('Main', { screen: 'Home' })}
                     >
                         <Text style={styles.shopButtonText}>Commencer vos achats</Text>
                     </TouchableOpacity>
                 </View>
             )}
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 

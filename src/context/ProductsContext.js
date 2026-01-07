@@ -175,13 +175,13 @@ export const ProductsProvider = ({ children }) => {
                     description: updates.description,
                     price: updates.price ? parseFloat(updates.price) : undefined,
                     category: updates.category,
-                    image_url: updates.image,
+                    image: updates.image, // Changé de image_url à image
                     stock: updates.stock ? parseInt(updates.stock) : undefined,
                 },
                 true
             );
 
-            if (response.success) {
+            if (response.success && response.product) {
                 // Adapter le produit retourné
                 const updatedProduct = {
                     id: response.product.id.toString(),
@@ -189,8 +189,14 @@ export const ProductsProvider = ({ children }) => {
                     description: response.product.description,
                     price: parseFloat(response.product.price),
                     category: response.product.category,
-                    image: response.product.image_url,
+                    image: response.product.image_url 
+                        ? (response.product.image_url.startsWith('http') 
+                            ? response.product.image_url 
+                            : `${API_BASE_URL}${response.product.image_url}`)
+                        : null,
                     artisanId: response.product.artisan_id?.toString(),
+                    artisanName: response.product.artisan_name,
+                    artisanLocation: response.product.artisan_location,
                     stock: response.product.stock,
                     views: response.product.views || 0,
                     likes: response.product.likes || 0,
@@ -201,12 +207,15 @@ export const ProductsProvider = ({ children }) => {
                 setProducts(prev =>
                     prev.map(p => p.id === productId ? updatedProduct : p)
                 );
+                
+                console.log('✅ Produit mis à jour avec succès:', updatedProduct);
+                
                 return { success: true };
             }
             
-            return { success: false, error: response.error };
+            return { success: false, error: response.error || 'Erreur lors de la mise à jour' };
         } catch (error) {
-            console.error('Error updating product:', error);
+            console.error('❌ Error updating product:', error);
             return { success: false, error: error.message || 'Erreur lors de la mise à jour' };
         }
     };
