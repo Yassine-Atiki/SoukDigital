@@ -19,6 +19,7 @@ import { useProducts } from '../context/ProductsContext';
 import { useAuth } from '../context/AuthContext';
 import ArtisanService from '../services/ArtisanService';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { API_BASE_URL } from '../config/api';
 
 const { width } = Dimensions.get('window');
 
@@ -39,6 +40,12 @@ const ArtisanDashboardScreen = ({ navigation }) => {
 
     // Function to load all data
     const loadDashboardData = useCallback(async () => {
+        // Ne pas charger si l'utilisateur n'est pas connecté
+        if (!user) {
+            setIsLoading(false);
+            return;
+        }
+
         try {
             setIsLoading(true);
 
@@ -246,7 +253,7 @@ const ArtisanDashboardScreen = ({ navigation }) => {
                                     <Image 
                                         source={{ 
                                             uri: order.productImage 
-                                                ? `http://20.31.0.39:3000${order.productImage}`
+                                                ? `${API_BASE_URL}${order.productImage}`
                                                 : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&q=80'
                                         }}
                                         style={styles.productImage}

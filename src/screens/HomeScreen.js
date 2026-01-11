@@ -20,6 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useFavorites } from '../context/FavoritesContext';
+import { useAuth } from '../context/AuthContext';
 
 import DataService from '../services/DataService';
 
@@ -28,6 +29,7 @@ const COLUMN_WIDTH = (width - SPACING.l * 2 - SPACING.m) / 2;
 
 const HomeScreen = ({ navigation }) => {
     const { toggleFavorite, isFavorite } = useFavorites();
+    const { user } = useAuth();
     const [selectedCategory, setSelectedCategory] = useState('Tout');
     const [searchQuery, setSearchQuery] = useState('');
     const [products, setProducts] = useState([]);
@@ -133,7 +135,7 @@ const HomeScreen = ({ navigation }) => {
             {/* Header */}
             <View style={styles.header}>
                 <View>
-                    <Text style={styles.greeting}>Bonjour,</Text>
+                    <Text style={styles.greeting}>Bonjour, {user?.name || ''}</Text>
                     <Text style={styles.title}>Digital Souk</Text>
                 </View>
             </View>

@@ -11,6 +11,7 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { COLORS, SPACING, FONTS, SHADOWS, BORDER_RADIUS } from '../constants/theme';
 import CustomInput from '../components/CustomInput';
@@ -94,8 +95,8 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaWrapper backgroundColor={COLORS.secondary}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.secondary} />
+    <SafeAreaWrapper backgroundColor={COLORS.background}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -106,13 +107,14 @@ const SignUpScreen = ({ navigation }) => {
           bounces={false}
         >
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
-          {/* PREMIUM HEADER SECTION */}
+          {/* ARTISTIC HEADER WITH MOROCCAN PATTERNS */}
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
           <View style={styles.headerSection}>
-            {/* Background layers */}
-            <View style={styles.headerGradient}>
-              <View style={styles.gradientLayer1} />
-              <View style={styles.gradientLayer2} />
+            {/* Gradient Background */}
+            <View style={styles.gradientContainer}>
+              <View style={[styles.gradientCircle, styles.gradientCircle1]} />
+              <View style={[styles.gradientCircle, styles.gradientCircle2]} />
+              <View style={[styles.gradientCircle, styles.gradientCircle3]} />
             </View>
 
             {/* Decorative Moroccan patterns */}
@@ -127,39 +129,33 @@ const SignUpScreen = ({ navigation }) => {
               color={COLORS.goldLight}
             />
 
-            {/* Top gold accent line */}
-            <View style={styles.topAccentLine} />
-
-            {/* Header content */}
-            <View style={styles.headerContent}>
-              {/* Decorative element */}
-              <View style={styles.headerDecorator}>
-                <View style={styles.decoratorLine} />
-                <View style={styles.decoratorDiamond} />
-                <View style={styles.decoratorLine} />
+            {/* Artistic Brand Section */}
+            <View style={styles.brandContainer}>
+              {/* Decorative Icon */}
+              <View style={styles.brandIconContainer}>
+                <View style={styles.brandIconOuter}>
+                  <View style={styles.brandIconInner}>
+                    <Ionicons name="sparkles" size={32} color={COLORS.gold} />
+                  </View>
+                </View>
               </View>
 
-              <Text style={styles.headerTitle}>Rejoignez-Nous</Text>
-              <Text style={styles.headerSubtitle}>
-                DÉCOUVREZ L'ARTISANAT MAROCAIN
-              </Text>
-
-              {/* Decorative dots */}
-              <View style={styles.headerDots}>
-                <View style={styles.dot} />
-                <View style={[styles.dot, styles.dotCenter]} />
-                <View style={styles.dot} />
-              </View>
+              <Text style={styles.brandTitle}>Rejoignez-Nous</Text>
+              <Text style={styles.brandTagline}>Devenez membre de notre communauté artisanale</Text>
             </View>
-
-            {/* Bottom curve */}
-            <View style={styles.headerCurve} />
           </View>
 
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
-          {/* FORM SECTION */}
+          {/* FORM CARD WITH ELEVATED DESIGN */}
           {/* ═══════════════════════════════════════════════════════════════════════════ */}
-          <View style={styles.formSection}>
+          <View style={styles.formCard}>
+            {/* Decorative Top Border */}
+            <View style={styles.cardTopBorder}>
+              <View style={styles.cardTopBorderLine} />
+              <View style={styles.cardTopBorderDiamond} />
+              <View style={styles.cardTopBorderLine} />
+            </View>
+
             {/* Role Selector */}
             <RoleSelector selectedRole={userType} onSelectRole={setUserType} />
 
@@ -223,11 +219,7 @@ const SignUpScreen = ({ navigation }) => {
             {/* Divider */}
             <View style={styles.dividerContainer}>
               <View style={styles.dividerLine} />
-              <View style={styles.dividerTextContainer}>
-                <View style={styles.dividerDot} />
-                <Text style={styles.dividerText}>ou</Text>
-                <View style={styles.dividerDot} />
-              </View>
+              <Text style={styles.dividerText}>ou</Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -237,11 +229,6 @@ const SignUpScreen = ({ navigation }) => {
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                 <Text style={styles.loginLink}>Se connecter</Text>
               </TouchableOpacity>
-            </View>
-
-            {/* Bottom decorative element */}
-            <View style={styles.bottomDecorator}>
-              <View style={styles.bottomDecoratorDiamond} />
             </View>
           </View>
         </ScrollView>
@@ -263,126 +250,132 @@ const styles = StyleSheet.create({
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // HEADER STYLES
+  // ARTISTIC HEADER STYLES
   // ═══════════════════════════════════════════════════════════════════════════
   headerSection: {
-    height: height * 0.28,
-    backgroundColor: COLORS.secondary,
+    height: height * 0.35,
+    backgroundColor: COLORS.primary,
     position: 'relative',
     overflow: 'hidden',
-  },
-  headerGradient: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  gradientLayer1: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: COLORS.secondaryDark,
-    opacity: 0.5,
-  },
-  gradientLayer2: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '60%',
-    backgroundColor: COLORS.secondary,
-  },
-  topAccentLine: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: COLORS.gold,
-  },
-  patternTopLeft: {
-    top: -30,
-    left: -40,
-    opacity: 0.12,
-  },
-  patternBottomRight: {
-    bottom: 20,
-    right: -30,
-    opacity: 0.1,
-  },
-  headerContent: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: SPACING.l,
   },
-  headerDecorator: {
-    flexDirection: 'row',
+  gradientContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  gradientCircle: {
+    position: 'absolute',
+    borderRadius: 999,
+    opacity: 0.15,
+  },
+  gradientCircle1: {
+    width: 200,
+    height: 200,
+    backgroundColor: COLORS.gold,
+    top: -50,
+    left: -50,
+  },
+  gradientCircle2: {
+    width: 150,
+    height: 150,
+    backgroundColor: COLORS.goldLight,
+    bottom: 20,
+    right: -40,
+  },
+  gradientCircle3: {
+    width: 100,
+    height: 100,
+    backgroundColor: COLORS.primaryLight,
+    top: '40%',
+    left: '30%',
+  },
+  patternTopLeft: {
+    top: 20,
+    left: -30,
+    opacity: 0.1,
+  },
+  patternBottomRight: {
+    bottom: 40,
+    right: -20,
+    opacity: 0.08,
+  },
+  brandContainer: {
     alignItems: 'center',
-    marginBottom: SPACING.m,
+    zIndex: 10,
   },
-  decoratorLine: {
-    width: 25,
-    height: 1,
-    backgroundColor: COLORS.gold,
-    opacity: 0.6,
+  brandIconContainer: {
+    marginBottom: SPACING.l,
   },
-  decoratorDiamond: {
-    width: 8,
-    height: 8,
-    backgroundColor: COLORS.gold,
-    transform: [{ rotate: '45deg' }],
-    marginHorizontal: SPACING.s,
+  brandIconOuter: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(212, 168, 83, 0.3)',
   },
-  headerTitle: {
-    fontSize: FONTS.sizes.xxxl,
-    fontWeight: '700',
-    color: COLORS.textInverse,
-    letterSpacing: FONTS.letterSpacing.wide,
+  brandIconInner: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  brandTitle: {
+    fontSize: 36,
+    fontWeight: '800',
+    color: COLORS.surface,
+    letterSpacing: 1,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
+    marginBottom: SPACING.xs,
   },
-  headerSubtitle: {
-    fontSize: FONTS.sizes.xs,
-    color: COLORS.gold,
-    letterSpacing: FONTS.letterSpacing.luxury,
-    fontWeight: '600',
-    marginTop: SPACING.xs,
-  },
-  headerDots: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: SPACING.m,
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.gold,
-    opacity: 0.5,
-  },
-  dotCenter: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginHorizontal: SPACING.s,
-    opacity: 0.8,
-  },
-  headerCurve: {
-    position: 'absolute',
-    bottom: -2,
-    left: 0,
-    right: 0,
-    height: 25,
-    backgroundColor: COLORS.background,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
+  brandTagline: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.goldLight,
+    letterSpacing: 0.5,
+    fontWeight: '500',
+    textAlign: 'center',
+    paddingHorizontal: SPACING.xl,
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // FORM STYLES
+  // ELEVATED FORM CARD STYLES
   // ═══════════════════════════════════════════════════════════════════════════
-  formSection: {
+  formCard: {
     flex: 1,
+    backgroundColor: COLORS.background,
+    marginTop: -30,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.l,
+    paddingTop: SPACING.xl,
     paddingBottom: SPACING.xxl,
+    ...SHADOWS.lg,
+  },
+  cardTopBorder: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.l,
+  },
+  cardTopBorderLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: COLORS.gold,
+    opacity: 0.3,
+  },
+  cardTopBorderDiamond: {
+    width: 10,
+    height: 10,
+    backgroundColor: COLORS.gold,
+    transform: [{ rotate: '45deg' }],
+    marginHorizontal: SPACING.m,
+    opacity: 0.6,
   },
   inputsContainer: {
     marginBottom: SPACING.m,
@@ -399,36 +392,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   buttonContainer: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.l,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.l,
   },
   dividerLine: {
     flex: 1,
     height: 1,
     backgroundColor: COLORS.border,
   },
-  dividerTextContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.m,
-  },
-  dividerDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.gold,
-    opacity: 0.4,
-  },
   dividerText: {
     fontSize: FONTS.sizes.sm,
     color: COLORS.textTertiary,
-    fontWeight: '600',
-    marginHorizontal: SPACING.s,
-    textTransform: 'lowercase',
+    fontWeight: '500',
+    marginHorizontal: SPACING.m,
   },
   loginContainer: {
     flexDirection: 'row',
@@ -443,17 +423,6 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sizes.md,
     color: COLORS.primary,
     fontWeight: '700',
-  },
-  bottomDecorator: {
-    alignItems: 'center',
-    marginTop: SPACING.xl,
-  },
-  bottomDecoratorDiamond: {
-    width: 10,
-    height: 10,
-    backgroundColor: COLORS.gold,
-    transform: [{ rotate: '45deg' }],
-    opacity: 0.3,
   },
 });
 
