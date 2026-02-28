@@ -23,16 +23,6 @@
 
 ---
 
-## 🖼️ Screenshots
-
-<div align="center">
-<img src="assets/icon.png" alt="Souk Digital App Icon" width="120" />
-
-> *Full app screenshots coming soon — run the app locally to see the UI in action.*
-</div>
-
----
-
 ## ✨ Features
 
 ### 🛒 For Customers
@@ -328,10 +318,10 @@ SoukDigital/
 
 ## 👤 Author
 
-**[Your Name]**
+**YASSINE ATIKI**
 
 [![GitHub](https://img.shields.io/badge/GitHub-@Yassine--Atiki-181717?logo=github)](https://github.com/Yassine-Atiki)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?logo=linkedin)](https://linkedin.com/in/your-linkedin)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?logo=linkedin)]([https://linkedin.com/in/your-linkedin](https://www.linkedin.com/in/yassine-atiki-b8a815332/))
 
 ---
 
