@@ -3,9 +3,10 @@
 // ═══════════════════════════════════════════════════════════════
 
 // 🔥 CONFIGURATION SERVEUR API
-// Utilisez votre IP locale pour tester sur un appareil physique
-// Utilisez localhost pour l'émulateur/simulateur
-export const API_BASE_URL = 'http://20.30.0.125:3000';
+// Set API_BASE_URL to your local machine's IP when testing on a physical device,
+// or use localhost for an emulator/simulator.
+// Example for physical device: 'http://192.168.1.100:3000'
+export const API_BASE_URL = 'http://localhost:3000';
 
 // 📡 Endpoints de l'API
 export const API_ENDPOINTS = {

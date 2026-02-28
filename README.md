@@ -1,421 +1,351 @@
-# 🎨 Souk Digital - Artisanat du Maroc
-
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.0-D97853)
-![React Native](https://img.shields.io/badge/React%20Native-0.81.5-61DAFB)
-![Expo](https://img.shields.io/badge/Expo-~54.0-000020)
-![Style](https://img.shields.io/badge/Style-Marocain%20Moderne-D4AF37)
+# 🛍️ Souk Digital
 
-**Application mobile moderne inspirée de l'artisanat marocain traditionnel**
+### A full-stack mobile marketplace celebrating Moroccan artisanal craftsmanship
 
-[Fonctionnalités](#-fonctionnalités) •
-[Installation](#-installation) •
-[Documentation](#-documentation) •
-[Design](#-design-marocain-moderne)
+[![React Native](https://img.shields.io/badge/React%20Native-0.81.5-61DAFB?logo=react&logoColor=white)](https://reactnative.dev/)
+[![Expo](https://img.shields.io/badge/Expo-54.0-000020?logo=expo&logoColor=white)](https://expo.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-Express%205-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](https://mysql.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-D97853.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Active-brightgreen)](https://github.com/Yassine-Atiki/SoukDigital)
+
+[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Project Structure](#-project-structure) • [Live Demo](#-live-demo)
 
 </div>
 
 ---
 
-## 📱 Aperçu
+## 📱 Overview
 
-Souk Digital est une application React Native Expo qui célèbre l'artisanat marocain avec un design moderne et élégant. L'interface combine des éléments traditionnels marocains (zellige, arcs, motifs géométriques) avec une expérience utilisateur contemporaine.
-
-### ✨ Points Forts
-
-- 🎨 **Design Marocain Authentique** - Palette de couleurs inspirée des souks, zellige et jardins
-- 🏛️ **Motifs Traditionnels** - Étoiles à 8 branches, arcs, motifs géométriques
-- ✨ **Accents Dorés** - Ornements subtils inspirés de l'artisanat
-- 📱 **100% React Native** - Compatible iOS & Android
-- 🚀 **Performance Optimisée** - Pas de bibliothèques externes lourdes
-- 🎯 **Composants Réutilisables** - Architecture modulaire
+**Souk Digital** is a cross-platform mobile marketplace that connects customers with Moroccan artisans. Buyers can discover and purchase handcrafted goods — pottery, zellige, leather, textiles, jewelry, and woodwork — while artisans manage their own shops with a dedicated dashboard. The UI blends modern mobile design with authentic Moroccan aesthetics: terracotta tones, zellige-inspired patterns, and golden accents.
 
 ---
 
-## 🎨 Design Marocain Moderne
+## 🖼️ Screenshots
 
-### Palette de Couleurs
+<div align="center">
+<img src="assets/icon.png" alt="Souk Digital App Icon" width="120" />
 
-| Couleur | Hex | Inspiration |
-|---------|-----|-------------|
-| 🔥 Terre Cuite | `#D97853` | Poteries marocaines |
-| 🌿 Vert Émeraude | `#0D4D4D` | Zellige traditionnels |
-| ✨ Or | `#D4AF37` | Motifs et décorations |
-| 💙 Bleu Majorelle | `#5B7BDB` | Jardin Majorelle |
-| 🌟 Safran | `#F4B942` | Épices du souk |
-| 🍃 Menthe | `#98D8C8` | Thé à la menthe |
-
-### Éléments de Design
-
-- **Arcs Marocains** - Border radius de 40px pour simuler les arcs traditionnels
-- **Motifs Zellige** - Composant `MoroccanPattern` avec 4 variantes
-- **Coins Décoratifs** - Ornements aux angles des boutons
-- **Accents Dorés** - Bordures et lignes décoratives
-- **Ombres Colorées** - Profondeur avec teintes terre cuite
+> *Full app screenshots coming soon — run the app locally to see the UI in action.*
+</div>
 
 ---
 
-## 🚀 Fonctionnalités
+## ✨ Features
 
-### Écrans Disponibles
+### 🛒 For Customers
+- **Browse Products** — Explore handcrafted items filtered by category (Tissage, Zellige, Poterie, Bois, Cuir, Bijoux)
+- **Smart Search** — Full-text product search screen
+- **Product Detail** — High-resolution images, artisan info, price, and stock
+- **Shopping Cart** — Add/remove items, adjust quantities, view totals
+- **Checkout & Orders** — Place orders and track order history
+- **Favorites** — Save and revisit preferred products
+- **Address Book** — Manage multiple delivery addresses
+- **Profile Management** — Edit personal info and avatar
 
-#### 🔐 Login Screen
-- Formulaire de connexion élégant
-- Validation des champs email/mot de passe
-- Lien "Mot de passe oublié"
-- Motifs décoratifs marocains en arrière-plan
-- État de chargement
+### 🎨 For Artisans
+- **Artisan Dashboard** — Overview of sales, orders, and product stats
+- **Product Management** — Add, edit, and delete product listings with image upload
+- **Order Tracking** — View and manage incoming orders
+- **Public Profile** — Artisan bio, specialty, location, and ratings
 
-#### 📝 Sign Up Screen
-- Inscription avec validation complète
-- Confirmation du mot de passe
-- Design cohérent avec LoginScreen
-- Variantes de motifs pour différenciation
+### 🔐 Authentication
+- Role-based sign-up (Customer / Artisan)
+- JWT-secured login & session persistence via AsyncStorage
+- Password hashing with bcrypt
 
-### Composants Personnalisés
-
-#### `CustomButton`
-- Variantes primaire et secondaire
-- Coins décoratifs inspirés des cadres marocains
-- Bordure dorée subtile
-- Ombre colorée
-- État de chargement intégré
-
-#### `CustomInput`
-- Label avec ornement doré
-- Accent doré au focus (barre verticale)
-- Validation d'erreur stylisée
-- Support de tous les types de clavier
-- Gestion du texte sécurisé
-
-#### `MoroccanPattern` ⭐
-Motifs décoratifs avec 4 variantes :
-- `default` : Cercles concentriques
-- `star` : Étoile à 8 branches
-- `arch` : Arcs marocains
-- `geometric` : Grille zellige
-
-#### `MoroccanDivider` ⭐
-Séparateurs élégants avec 4 styles :
-- `simple` : Ligne minimaliste
-- `ornate` : Diamant central
-- `dots` : Trois points
-- `geometric` : Motifs carrés
+### 🎨 Design System
+- Moroccan-inspired color palette (terracotta, emerald, gold, Majorelle blue)
+- Reusable components: `CustomButton`, `CustomInput`, `MoroccanPattern`, `MoroccanDivider`, `SafeAreaWrapper`, `RoleSelector`
+- Responsive grid layout, safe area support across all devices
 
 ---
 
-## 📦 Installation
+## 🛠️ Tech Stack
 
-### Prérequis
+<div align="center">
 
-- Node.js (v14 ou supérieur)
-- npm ou yarn
-- Expo CLI
-- iOS Simulator (Mac) ou Android Studio
+[![Tech Stack](https://skillicons.dev/icons?i=react,nodejs,express,mysql,js)](https://skillicons.dev)
 
-### Étapes d'Installation
+</div>
+
+| Layer | Technology |
+|---|---|
+| Mobile App | React Native 0.81.5 + Expo ~54.0 |
+| Navigation | React Navigation 7.x (Stack + Bottom Tabs) |
+| State Management | React Context API |
+| Backend API | Node.js + Express 5 |
+| Database | MySQL 8 |
+| Authentication | JWT + bcrypt |
+| Image Upload | Multer |
+| Local Storage | AsyncStorage |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** v18 or higher
+- **npm** v9 or higher
+- **MySQL** 8.0 running locally
+- **Expo Go** app on your iOS/Android device, or an emulator/simulator
+
+---
+
+### Installation
+
+#### 1. Clone the repository
 
 ```bash
-# 1. Cloner ou naviguer vers le projet
+git clone https://github.com/Yassine-Atiki/SoukDigital.git
 cd SoukDigital
+```
 
-# 2. Installer les dépendances
+#### 2. Install mobile app dependencies
+
+```bash
 npm install
-# ou
-yarn install
+```
 
-# 3. Démarrer le serveur Expo
-npm start
-# ou
-yarn start
+#### 3. Install API dependencies
 
-# 4. Lancer sur un émulateur/appareil
-# iOS
-npm run ios
-
-# Android
-npm run android
-
-# Web (pour prévisualisation)
-npm run web
+```bash
+cd soukdigital-api
+npm install
 ```
 
 ---
 
-## 📁 Structure du Projet
+### Environment Setup
+
+#### Database
+
+1. Start your MySQL server
+2. Create the database and tables:
+
+```bash
+mysql -u root -p < soukdigital-api/database/schema.sql
+```
+
+#### API environment variables
+
+```bash
+cp soukdigital-api/.env.example soukdigital-api/.env
+```
+
+Open `soukdigital-api/.env` and fill in your values:
+
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_db_password
+DB_NAME=soukdigital
+DB_PORT=3306
+
+PORT=3000
+NODE_ENV=development
+
+JWT_SECRET=your_strong_random_secret
+
+ALLOWED_ORIGINS=http://localhost:19006,http://localhost:8081
+```
+
+#### API URL (mobile app)
+
+Open `src/config/api.js` and set your machine's local IP if testing on a physical device:
+
+```js
+export const API_BASE_URL = 'http://YOUR_LOCAL_IP:3000';
+// Example: 'http://192.168.1.100:3000'
+// Use 'http://localhost:3000' for emulator/simulator
+```
+
+---
+
+### Run Locally
+
+#### Start the backend API
+
+```bash
+cd soukdigital-api
+npm run dev      # Development (nodemon auto-reload)
+# or
+npm start        # Production
+```
+
+The API will be available at `http://localhost:3000`. Verify it with:
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+#### Start the Expo app (in a separate terminal)
+
+```bash
+# From project root
+npm start         # Opens Expo Dev Tools
+
+npm run android   # Launch on Android emulator
+npm run ios       # Launch on iOS simulator (macOS only)
+npm run web       # Launch in browser
+```
+
+Then scan the QR code with **Expo Go** on your mobile device.
+
+---
+
+## 📁 Project Structure
 
 ```
 SoukDigital/
-├── App.js                      # Point d'entrée
-├── index.js                    # Export principal
-├── package.json                # Dépendances
-├── app.json                    # Configuration Expo
 │
-├── assets/                     # Images et assets
+├── App.js                        # App entry — context providers + navigation root
+├── index.js                      # Expo entry point
+├── app.json                      # Expo configuration
+├── package.json                  # Mobile app dependencies
+│
+├── assets/                       # App icons and splash screen images
 │
 ├── src/
-│   ├── components/             # Composants réutilisables
-│   │   ├── CustomButton.js     # Bouton stylisé
-│   │   ├── CustomInput.js      # Input avec ornements
-│   │   ├── MoroccanPattern.js  # Motifs décoratifs ⭐
-│   │   └── MoroccanDivider.js  # Séparateurs élégants ⭐
+│   ├── components/               # Reusable UI components
+│   │   ├── CustomButton.js       # Styled button with Moroccan ornaments
+│   │   ├── CustomInput.js        # Input field with gold accent & validation
+│   │   ├── MoroccanDivider.js    # Decorative dividers (4 variants)
+│   │   ├── MoroccanPattern.js    # Decorative SVG-like patterns (4 variants)
+│   │   ├── RoleSelector.js       # Customer / Artisan role picker
+│   │   └── SafeAreaWrapper.js    # Safe area utility wrapper
+│   │
+│   ├── config/
+│   │   └── api.js                # API base URL and all endpoint constants
 │   │
 │   ├── constants/
-│   │   └── theme.js            # Système de design complet
+│   │   └── theme.js              # Design system: colors, spacing, fonts, shadows
+│   │
+│   ├── context/                  # Global state via React Context
+│   │   ├── AppInitializer.js     # Restore auth session on startup
+│   │   ├── AuthContext.js        # Auth state & login/logout actions
+│   │   ├── CartContext.js        # Shopping cart state
+│   │   ├── FavoritesContext.js   # Favorites list
+│   │   ├── OrdersContext.js      # Orders state
+│   │   └── ProductsContext.js    # Products state
 │   │
 │   ├── navigation/
-│   │   └── AuthNavigator.js    # Navigation authentification
+│   │   ├── AuthNavigator.js      # Login / Sign-up stack
+│   │   ├── MainContainer.js      # Bottom tabs for authenticated users
+│   │   └── RootNavigator.js      # Root switch: auth vs. main app
 │   │
-│   └── screens/
-│       ├── LoginScreen.js      # Écran de connexion
-│       └── SignUpScreen.js     # Écran d'inscription
+│   ├── screens/                  # One file per screen
+│   │   ├── HomeScreen.js         # Product grid + category filter
+│   │   ├── SearchScreen.js       # Full-text product search
+│   │   ├── ProductDetailScreen.js
+│   │   ├── CartScreen.js
+│   │   ├── CheckoutScreen.js
+│   │   ├── FavoritesScreen.js
+│   │   ├── OrderHistoryScreen.js
+│   │   ├── ProfileScreen.js
+│   │   ├── EditProfileScreen.js
+│   │   ├── AddressesScreen.js
+│   │   ├── PaymentMethodsScreen.js
+│   │   ├── SettingsScreen.js
+│   │   ├── ArtisanDashboardScreen.js
+│   │   ├── ArtisanProfileScreen.js
+│   │   ├── ManageProductsScreen.js
+│   │   ├── AddEditProductScreen.js
+│   │   ├── LoginScreen.js
+│   │   └── SignUpScreen.js
+│   │
+│   └── services/                 # API communication layer
+│       ├── AuthService.js
+│       ├── ArtisanService.js
+│       ├── DataService.js
+│       ├── HttpService.js
+│       ├── OrderService.js
+│       └── StorageService.js
 │
-├── STYLE_GUIDE.md             # Guide de style détaillé
-├── CHANGELOG.md               # Historique des modifications
-├── EXAMPLES.md                # Exemples d'utilisation
-└── VISUAL_SUMMARY.md          # Résumé visuel ASCII
+└── soukdigital-api/              # Node.js / Express backend
+    ├── server.js                 # Express app entry point
+    ├── .env.example              # Environment variable template
+    ├── package.json
+    │
+    ├── config/
+    │   ├── database.js           # MySQL connection pool
+    │   ├── multer.js             # Product image upload config
+    │   └── multer-avatar.js      # Avatar upload config
+    │
+    ├── database/
+    │   └── schema.sql            # Full MySQL schema
+    │
+    ├── middleware/
+    │   └── auth.js               # JWT verification middleware
+    │
+    ├── routes/
+    │   ├── auth.js               # POST /api/auth/register|login|verify
+    │   ├── products.js           # CRUD /api/products
+    │   ├── orders.js             # CRUD /api/orders
+    │   ├── favorites.js          # GET|POST /api/favorites
+    │   ├── users.js              # GET|PUT /api/users/profile
+    │   ├── addresses.js          # CRUD /api/addresses
+    │   └── artisans.js           # GET /api/artisans
+    │
+    └── uploads/                  # Uploaded product and avatar images
+        ├── products/
+        └── avatars/
 ```
 
 ---
 
-## 🎯 Utilisation Rapide
+## 🌐 API Endpoints
 
-### Importer les Composants
-
-```jsx
-import CustomButton from './src/components/CustomButton';
-import CustomInput from './src/components/CustomInput';
-import MoroccanPattern from './src/components/MoroccanPattern';
-import MoroccanDivider from './src/components/MoroccanDivider';
-import { COLORS, SPACING, FONTS } from './src/constants/theme';
-```
-
-### Créer un Bouton
-
-```jsx
-<CustomButton 
-  title="Se Connecter" 
-  onPress={handleLogin}
-  isLoading={loading}
-/>
-```
-
-### Créer un Input
-
-```jsx
-<CustomInput
-  label="Email"
-  placeholder="artisan@souk.ma"
-  value={email}
-  onChangeText={setEmail}
-  error={errors.email}
-  keyboardType="email-address"
-/>
-```
-
-### Ajouter des Motifs
-
-```jsx
-<View style={styles.header}>
-  <MoroccanPattern variant="star" style={{ top: -20, right: -30 }} />
-  <Text style={styles.title}>Mon Titre</Text>
-</View>
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/register` | Create a new account |
+| `POST` | `/api/auth/login` | Login and receive JWT |
+| `POST` | `/api/auth/verify` | Verify JWT token |
+| `GET` | `/api/products` | List all products |
+| `POST` | `/api/products` | Create product (artisan) |
+| `PUT` | `/api/products/:id` | Update product (artisan) |
+| `DELETE` | `/api/products/:id` | Delete product (artisan) |
+| `GET` | `/api/orders` | List user orders |
+| `POST` | `/api/orders` | Place a new order |
+| `GET` | `/api/favorites` | List favorites |
+| `POST` | `/api/favorites/toggle` | Add/remove favorite |
+| `GET` | `/api/users/profile` | Get current user profile |
+| `PUT` | `/api/users/profile` | Update profile |
+| `GET` | `/api/addresses` | List addresses |
+| `POST` | `/api/addresses` | Add address |
+| `GET` | `/api/health` | Health check |
 
 ---
 
-## 📚 Documentation
+## 🔗 Live Demo
 
-Documentation complète disponible dans :
-
-- **[STYLE_GUIDE.md](./STYLE_GUIDE.md)** - Guide complet du système de design
-- **[EXAMPLES.md](./EXAMPLES.md)** - Exemples pratiques d'utilisation
-- **[CHANGELOG.md](./CHANGELOG.md)** - Historique détaillé des modifications
-- **[VISUAL_SUMMARY.md](./VISUAL_SUMMARY.md)** - Résumé visuel ASCII
-
-### Thème Configuration
-
-Le fichier `src/constants/theme.js` contient :
-- **COLORS** : 25+ couleurs organisées
-- **SPACING** : Système d'espacement (4-64px)
-- **FONTS** : Tailles modulaires (12-42px)
-- **SHADOWS** : 4 niveaux d'élévation
-- **BORDER_RADIUS** : Rayons prédéfinis
-- **PATTERNS** : Configuration des motifs
+> 🚧 **Coming Soon** — [https://your-live-demo-url.com](https://your-live-demo-url.com)
 
 ---
 
-## 🎨 Exemples Visuels
+## 👤 Author
 
-### Header avec Motifs
+**[Your Name]**
 
-```jsx
-<View style={styles.header}>
-  <MoroccanPattern variant="star" style={{ top: -40, right: -30 }} />
-  <Text style={styles.title}>Souk Digital</Text>
-  <View style={styles.titleUnderline} />
-  <Text style={styles.subtitle}>✦ Artisanat du Maroc ✦</Text>
-</View>
-```
-
-### Formulaire Complet
-
-```jsx
-<View style={styles.form}>
-  <CustomInput
-    label="Email"
-    value={email}
-    onChangeText={setEmail}
-    placeholder="votre@email.com"
-  />
-  
-  <CustomInput
-    label="Mot de passe"
-    value={password}
-    onChangeText={setPassword}
-    secureTextEntry
-    placeholder="••••••••"
-  />
-  
-  <MoroccanDivider variant="ornate" />
-  
-  <CustomButton 
-    title="Se Connecter"
-    onPress={handleSubmit}
-  />
-</View>
-```
+[![GitHub](https://img.shields.io/badge/GitHub-@Yassine--Atiki-181717?logo=github)](https://github.com/Yassine-Atiki)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?logo=linkedin)](https://linkedin.com/in/your-linkedin)
 
 ---
 
-## 🛠️ Technologies Utilisées
+## 📄 License
 
-- **React Native** 0.81.5 - Framework mobile
-- **Expo** ~54.0 - Plateforme de développement
-- **React Navigation** 7.x - Navigation
-- **React** 19.1.0 - Bibliothèque UI
-
-**Aucune dépendance UI externe** - Tous les composants sont créés en React Native pur pour :
-- ⚡ Performance maximale
-- 📦 Bundle size minimal
-- 🎨 Personnalisation totale
-- 🔧 Maintenance simplifiée
-
----
-
-## 🎯 Philosophie de Design
-
-> *"Allier la modernité du digital à la richesse de l'artisanat marocain"*
-
-Notre approche équilibre :
-
-| Tradition | ↔ | Modernité |
-|-----------|---|-----------|
-| Motifs zellige | ↔ | Interface épurée |
-| Arcs marocains | ↔ | Border radius modernes |
-| Couleurs authentiques | ↔ | Palette contemporaine |
-| Ornements subtils | ↔ | Minimalisme fonctionnel |
-
----
-
-## 🚀 Performance
-
-- ✅ **Pas d'images lourdes** - Tout en CSS/React Native
-- ✅ **Composants optimisés** - StyleSheet.create()
-- ✅ **Bundle size minimal** - Pas de bibliothèques UI
-- ✅ **Animations natives** - Performance 60 FPS
-- ✅ **Lazy loading ready** - Architecture modulaire
-
----
-
-## 🌍 Compatibilité
-
-| Plateforme | Version Minimale | Status |
-|------------|------------------|--------|
-| iOS | 12.0+ | ✅ Supporté |
-| Android | 6.0+ (API 23) | ✅ Supporté |
-| Web | Moderne browsers | ✅ Compatible |
-
----
-
-## 📝 Roadmap
-
-### Version 2.1 (À venir)
-- [ ] Mode sombre avec palette marocaine de nuit
-- [ ] Animations avancées (Animated API)
-- [ ] Plus de variantes MoroccanPattern
-- [ ] Composant Card décoré
-- [ ] Header avec effet parallax
-
-### Version 3.0 (Future)
-- [ ] Écrans produits artisanaux
-- [ ] Panier d'achat
-- [ ] Profil utilisateur
-- [ ] Liste de favoris
-- [ ] Intégration API backend
-
----
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! Pour proposer des changements :
-
-1. Respecter le guide de style (`STYLE_GUIDE.md`)
-2. Utiliser les couleurs du thème
-3. Maintenir la cohérence visuelle marocaine
-4. Documenter les nouveaux composants
-5. Tester sur iOS et Android
-
----
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
-
----
-
-## 🎨 Crédits & Inspiration
-
-### Inspiration Design
-- **Zellige de Fès** - Mosaïques géométriques traditionnelles
-- **Jardin Majorelle** - Palette de couleurs iconique
-- **Riads marocains** - Architecture avec arcs et cours
-- **Souks traditionnels** - Couleurs chaudes et ambiance
-- **Artisanat local** - Détails et ornements délicats
-
-### Resources
-- Palette de couleurs authentiques du Maroc
-- Motifs géométriques islamiques
-- Architecture marocaine traditionnelle
-- Design moderne et responsive
-
----
-
-## 📞 Contact & Support
-
-Pour toute question ou suggestion concernant le design ou l'implémentation :
-
-- 📧 Email : support@soukdigital.ma (fictif)
-- 🐛 Issues : Utilisez le système d'issues GitHub
-- 📖 Documentation : Voir les fichiers MD du projet
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-**Fait avec ❤️ pour l'artisanat marocain**
+**Made with ❤️ for Moroccan artisanal craftsmanship**
 
-```
-╔═══════════════════════════════════╗
-║                                   ║
-║      🎨 Souk Digital 2.0 🎨      ║
-║      ═══════════════════          ║
-║   ✦ Artisanat du Maroc ✦        ║
-║                                   ║
-╚═══════════════════════════════════╝
-```
-
-[⬆ Retour en haut](#-souk-digital---artisanat-du-maroc)
+[⬆ Back to top](#️-souk-digital)
 
 </div>
+
